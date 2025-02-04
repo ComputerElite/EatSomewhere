@@ -36,7 +36,7 @@ public class FoodWebserver
             string id = request.pathDiff;
             request.SendString(JsonSerializer.Serialize(FoodManager.GetAssembly(user, id)), "application/json");
             return true;
-        });
+        }, true);
         server.AddRoute("POST", "/api/v1/assembly/", request =>
         {
             request.allowAllOrigins = true;
@@ -72,6 +72,6 @@ public class FoodWebserver
             string id = request.pathDiff;
             request.SendString(JsonSerializer.Serialize(FoodManager.DeleteAssembly(user, id)), "application/json");
             return true;
-        });
+        }, true);
     }
 }
