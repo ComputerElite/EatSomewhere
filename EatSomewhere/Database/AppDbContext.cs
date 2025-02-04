@@ -1,3 +1,4 @@
+using EatSomewhere.Data;
 using Microsoft.EntityFrameworkCore;
 using EatSomewhere.Users;
 
@@ -7,6 +8,7 @@ public class AppDbContext : DbContext
 {
     public DbSet<User> Users { get; set; }
     public DbSet<UserSession> Sessions { get; set; }
+    public DbSet<Assembly> Assemblies { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -17,6 +19,20 @@ public class AppDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>().HasKey(x => x.Id);
+        
         modelBuilder.Entity<UserSession>().HasKey(x => x.Id);
+        
+        modelBuilder.Entity<Assembly>().Navigation(x => x.Users).AutoInclude();
+        modelBuilder.Entity<Assembly>().Navigation(x => x.Admins).AutoInclude();
+        
+        modelBuilder.Entity<Food>().Navigation(x => x.Assembly).AutoInclude();
+        modelBuilder.Entity<Food>().Navigation(x => x.Ingredients).AutoInclude();
+        modelBuilder.Entity<Food>().Navigation(x => x.Tags).AutoInclude();
+        
+        modelBuilder.Entity<FoodEntry>().Navigation(x => x.Food).AutoInclude();
+        modelBuilder.Entity<FoodEntry>().Navigation(x => x.Participants).AutoInclude();
+        modelBuilder.Entity<FoodEntry>().Navigation(x => x.PayedBy).AutoInclude();
+        
+        modelBuilder.Entity<IngredientEntry>().Navigation(x => x.Ingredient).AutoInclude();
     }
 }

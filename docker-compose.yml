@@ -1,0 +1,14 @@
+services:
+  dotnet_app:
+    build:
+      context: .  # Build from the current directory
+      dockerfile: Dockerfile  # Use the specified Dockerfile
+    container_name: eatsomewhere  # Optional: name the container
+    ports:
+      - "8384:8384"  # Map container port 80 to host port 5000 (adjust as needed)
+    volumes:
+      - dotnet_data:/app/data  # Mount a volume to /app/data inside the container
+
+volumes:
+  dotnet_data:
+    driver: local

@@ -13,6 +13,7 @@ public class Webserver
         Server.MaxWebsocketMessageSize = 1024 * 1024 * 5;
         UserManagementServer.AddUsermanagementEndpoints(Server);
         FrontendServer.AddFrontendRoutes(Server);
+        FoodWebserver.AddFoodRoutes(Server);
         Server.StartServer(Config.Instance.port);
     }
 }
