@@ -1,4 +1,4 @@
-package com.example.eat_somewhere
+package de.computerelite.eat_somewhere
 
 import io.flutter.embedding.android.FlutterActivity
 
