@@ -13,7 +13,6 @@ public class UserManager
     
     public static User? GetUserBySession(string session)
     {
-        
         using(AppDbContext c = new ())
         {
             UserSession? s = c.Sessions.FirstOrDefault(x => x.Id == session);
@@ -58,63 +57,7 @@ public class UserManager
                 return u;
             }
         }
-
         return null;
-    }
-
-    public static LoginResponse InitiateRegister(string username)
-    {
-        if(username == "") {
-            return new LoginResponse {Error = "Username must not be empty"};
-        }
-        User? u = GetUserByUsername(username);
-        if(u != null)
-        {
-            return new LoginResponse { Error = "User already exists" };
-        }
-        Challenge challenge = new Challenge
-        {
-            Username = username,
-            Nonce = CryptographicsHelper.GetRandomString(32, 32),
-            Id = Guid.NewGuid().ToString(),
-            Type = ChallengeType.Register
-        };
-        // remove previous login attempts for this user
-        challenges.RemoveAll(x => x.Username == u.Username);
-        // add current login attempt
-        challenges.Add(challenge);
-        return new LoginResponse()
-        {
-            Nonce = challenge.Nonce.ToString(),
-            ChallengeId = challenge.Id,
-            Success = true
-        };
-    }
-
-    public static LoginResponse InitiateLogin(string username)
-    {
-        User? u = GetUserByUsername(username);
-        if(u == null)
-        {
-            return new LoginResponse { Error = "Invalid username or password" };
-        }
-        Challenge challenge = new Challenge
-        {
-            UserId = u.Id,
-            Nonce = u.Salt,
-            Id = Guid.NewGuid().ToString(),
-            Type = ChallengeType.Password
-        };
-        // remove previous login attempts for this user
-        challenges.RemoveAll(x => x.UserId == u.Id);
-        // add current login attempt
-        challenges.Add(challenge);
-        return new LoginResponse()
-        {
-            Nonce = challenge.Nonce.ToString(),
-            ChallengeId = challenge.Id,
-            Success = true
-        };
     }
 
     public static UserSession CreateUserSession(User User, TimeSpan validFor)
@@ -143,20 +86,15 @@ public class UserManager
 
     public static LoginResponse Login(LoginRequest request)
     {
-        Challenge? rl = challenges.FirstOrDefault(x => x.Id == request.ChallengeId && x.Type == ChallengeType.Password);
-        if(rl == null)
-        {
-            return new LoginResponse { Error = "Password challenge with this id not found" };
-        }
-        challenges.Remove(rl);
-        User? u = GetUserByUUID(rl.UserId);
+        User? u = GetUserByUsername(request.Username);
         if(u == null)
         {
-            return new LoginResponse { Error = "User associated with challenge not found" };
+            return new LoginResponse { Error = "User doesn't exist" };
         }
         
         // hash password
-        if (u.PasswordHash != request.PasswordHash.ToLower())
+        string hash = CryptographicsHelper.GetHash(request.Password + u.Salt).ToLower();
+        if (u.PasswordHash != hash)
         {
             return new LoginResponse { Error = "Password incorrect" };
         }
@@ -185,25 +123,19 @@ public class UserManager
         }
     }
 
-    public static RegisterResponse Register(LoginRequest request)
+    public static LoginResponse Register(LoginRequest request)
     {
-        
-        Challenge? rl = challenges.FirstOrDefault(x => x.Id == request.ChallengeId && x.Type == ChallengeType.Register);
-        if(rl == null)
-        {
-            return new RegisterResponse { Error = "Password challenge with this id not found" };
-        }
-        challenges.Remove(rl);
-        User? u = GetUserByUsername(rl.Username);
+        User? u = GetUserByUsername(request.Username);
         if(u != null)
         {
-            return new RegisterResponse { Error = "User already exists" };
+            return new LoginResponse { Error = "User already exists" };
         }
+        String salt = CryptographicsHelper.GetRandomString(64, 64);
         u = new User
         {
             Username = request.Username,
-            PasswordHash = request.PasswordHash.ToLower(),
-            Salt = rl.Nonce + request.CNonce,
+            PasswordHash = CryptographicsHelper.GetHash(request.Password + salt).ToLower(),
+            Salt = salt,
             TwoFactorEnabled = false
         };
         using (AppDbContext c = new())
@@ -213,6 +145,6 @@ public class UserManager
         }
         // create session
         UserSession s = CreateUserSession(u, SessionValidity);
-        return new RegisterResponse { Success = true, SessionId = s.Id };
+        return new LoginResponse { Success = true, SessionId = s.Id };
     }
 }

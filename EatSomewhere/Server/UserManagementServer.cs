@@ -73,47 +73,7 @@ public class UserManagementServer
                 ApiError.MalformedRequest(request);
                 return true;
             }
-            RegisterResponse response = UserManager.Register(r);
-            request.SendString(JsonSerializer.Serialize(response), "application/json", response.Success ? 200 : 400);
-            return true;
-        });
-        server.AddRoute("POST", "/api/v1/user/start_register", request =>
-        {
-            request.allowAllOrigins = true;
-            RegisterRequest? r = null;
-            try
-            {
-                r = JsonSerializer.Deserialize<RegisterRequest>(request.bodyString);
-            } catch(Exception e)
-            {
-                ApiError.MalformedRequest(request);
-            }
-            if(r == null)
-            {
-                ApiError.MalformedRequest(request);
-                return true;
-            }
-            LoginResponse response = UserManager.InitiateRegister(r.Username);
-            request.SendString(JsonSerializer.Serialize(response), "application/json", response.Success ? 200 : 400);
-            return true;
-        });
-        server.AddRoute("POST", "/api/v1/user/start_login", request =>
-        {
-            request.allowAllOrigins = true;
-            LoginRequest? r = null;
-            try
-            {
-                r = JsonSerializer.Deserialize<LoginRequest>(request.bodyString);
-            } catch(Exception e)
-            {
-                ApiError.MalformedRequest(request);
-            }
-            if(r == null)
-            {
-                ApiError.MalformedRequest(request);
-                return true;
-            }
-            LoginResponse response = UserManager.InitiateLogin(r.Username);
+            LoginResponse response = UserManager.Register(r);
             request.SendString(JsonSerializer.Serialize(response), "application/json", response.Success ? 200 : 400);
             return true;
         });

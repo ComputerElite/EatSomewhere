@@ -8,7 +8,7 @@ public class Config
 
     public static Config? Instance;
     public string? dbConnectionString { get; set; }
-    public int port { get; set; } = 8384;
+    public int port { get; set; } = 8383;
     private static readonly string _configPath = "config.json";
     public static void LoadConfig()
     {

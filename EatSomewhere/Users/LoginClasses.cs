@@ -1,22 +1,8 @@
 namespace EatSomewhere.Users;
-public class RegisterRequest 
+public class LoginRequest 
 {
     public string? Username { get; set; }
     public string? Password { get; set; }
-}
-public class LoginRequest
-{
-    public string? Username { get; set; }
-    public string ChallengeId { get; set; }
-    public string? PasswordHash { get; set; }
-    public string? CNonce { get; set; }
-}
-
-public class RegisterResponse
-{
-    public string? SessionId { get; set; }
-    public string? Error { get; set; }
-    public bool Success { get; set; } = false;
 }
 
 public class LoginResponse
