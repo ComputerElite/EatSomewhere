@@ -237,6 +237,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ?.setThemeMode(ThemeMode.dark);
                       break;
                   }
+                  setState(() {});
                 }
               },
             )
