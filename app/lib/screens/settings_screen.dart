@@ -1,11 +1,15 @@
 import 'package:eat_somewhere/backend_data/backend_login_response.dart';
 import 'package:eat_somewhere/service/LoginManager.dart';
+import 'package:eat_somewhere/service/server_loader.dart';
+import 'package:eat_somewhere/widgets/error_dialog.dart';
 import 'package:eat_somewhere/widgets/loading_dialog.dart';
 import 'package:eat_somewhere/widgets/user_widget.dart';
 import 'package:flutter/material.dart';
 
+import '../backend_data/assembly.dart';
 import '../data/user.dart';
 import '../main.dart';
+import '../service/Server_com.dart';
 import '../service/storage.dart';
 import '../widgets/constrained_container.dart';
 import '../widgets/padded_card.dart';
@@ -94,6 +98,52 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ));
   }
 
+  void createAssembly() {
+    TextEditingController nameController = TextEditingController();
+    TextEditingController descriptionController = TextEditingController();
+    showDialog(context: context, builder: (context) => AlertDialog(
+      title: Text("Create Assembly"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: nameController,
+            decoration: InputDecoration(
+              labelText: "Name",
+            ),
+          ),
+          TextField(
+            controller: descriptionController,
+            decoration: InputDecoration(
+              labelText: "Description",
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text("Close"),
+        ),
+        TextButton(onPressed: () async {
+          String name = nameController.text;
+          String description = descriptionController.text;
+          Assembly a = Assembly(id: null, name: name, description: description, users: [], pending: [], admins: []);
+          String? error = await ServerLoader.createAssembly(a);
+          if(error != null) {
+            ErrorDialog.showErrorDialog(context, "Failed to create assembly", error);
+            return;
+          }
+          Storage.reloadAssemblies();
+          Navigator.of(context).pop();
+          setState(() {});
+        }, child: Text("Create")),
+      ],
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     ThemeData t = Theme.of(context);
@@ -136,6 +186,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 style: TextStyle(fontSize: t.textTheme.titleMedium!.fontSize)),
           ),
         ],),
+        Column(children: [
+          for (var assembly in Storage.getOwnAssemblies())
+            PaddedCard(
+              child: Column(
+                children: [
+                  Text(assembly.name, style: t.textTheme.headlineSmall),
+                  Text(assembly.description, style: t.textTheme.bodySmall),
+                ],
+              ),
+            ),
+        ],),
+        FilledButton(onPressed: createAssembly, child: Text("Create Assembly")),
         Padding(padding: EdgeInsets.all(5)),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

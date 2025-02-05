@@ -1,7 +1,7 @@
 import 'package:eat_somewhere/backend_data/Backend_user.dart';
 
 class Assembly {
-  String id;
+  String? id;
   List<BackendUser> users;
   List<BackendUser> pending;
   String name;

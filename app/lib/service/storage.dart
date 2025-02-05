@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:eat_somewhere/backend_data/assembly.dart';
+import 'package:eat_somewhere/service/server_loader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/settings.dart';
@@ -70,4 +71,19 @@ class Storage {
     instance.user = user;
     saveUser(user);
   }
+
+  static Future initialStart() async {
+    if (instance.user == null) {
+      return;
+    }
+    await reloadAssemblies();
+  }
+
+  static List<Assembly> getOwnAssemblies() {
+    return instance.ownAssemblies;
+  }
+
+  static Future reloadAssemblies() async {
+    instance.ownAssemblies = await ServerLoader.LoadAssemblies();
+    }
 }
