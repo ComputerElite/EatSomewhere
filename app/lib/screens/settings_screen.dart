@@ -1,4 +1,4 @@
-import 'package:eat_somewhere/backend_data/backend_user.dart';
+import 'package:eat_somewhere/backend_data/backend_login_response.dart';
 import 'package:eat_somewhere/service/LoginManager.dart';
 import 'package:eat_somewhere/widgets/loading_dialog.dart';
 import 'package:eat_somewhere/widgets/user_widget.dart';
@@ -72,8 +72,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           LoginManager l = LoginManager(server: server, username: username, password: password);
 
-          LoginResult response = registerPrompt ? await l.register() : await l.login();
-
+          LoginResult response = await l.loginOrRegister(registerPrompt);
+          Navigator.of(context).pop();
           if(response.error != null) {
             showDialog(context: context, builder: (context) => AlertDialog(
               title: Text("Error"),
@@ -86,7 +86,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ));
             return;
           }
-
+          Storage.setUser(response.user!);
+          setState(() {});
+          Navigator.of(context).pop();
         }, child: Text(registerPrompt ? "Register" : "Log in")),
       ],
     ));

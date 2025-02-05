@@ -21,18 +21,28 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<User>().HasKey(x => x.Id);
         
         modelBuilder.Entity<UserSession>().HasKey(x => x.Id);
-        
+
+        modelBuilder.Entity<Assembly>().HasKey(x => x.Id);
         modelBuilder.Entity<Assembly>().Navigation(x => x.Users).AutoInclude();
         modelBuilder.Entity<Assembly>().Navigation(x => x.Admins).AutoInclude();
         
+        modelBuilder.Entity<Food>().HasKey(x => x.Id);
         modelBuilder.Entity<Food>().Navigation(x => x.Assembly).AutoInclude();
         modelBuilder.Entity<Food>().Navigation(x => x.Ingredients).AutoInclude();
         modelBuilder.Entity<Food>().Navigation(x => x.Tags).AutoInclude();
         
+        modelBuilder.Entity<FoodEntry>().HasKey(x => x.Id);
         modelBuilder.Entity<FoodEntry>().Navigation(x => x.Food).AutoInclude();
         modelBuilder.Entity<FoodEntry>().Navigation(x => x.Participants).AutoInclude();
         modelBuilder.Entity<FoodEntry>().Navigation(x => x.PayedBy).AutoInclude();
         
+        modelBuilder.Entity<FoodParticipant>().HasKey(x => x.Id);
+        
+        modelBuilder.Entity<Ingredient>().HasKey(x => x.Id);
+        
+        modelBuilder.Entity<IngredientEntry>().HasKey(x => x.Id);
         modelBuilder.Entity<IngredientEntry>().Navigation(x => x.Ingredient).AutoInclude();
+        
+        modelBuilder.Entity<Tag>().HasKey(x => x.Id);
     }
 }
