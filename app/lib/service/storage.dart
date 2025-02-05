@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:eat_somewhere/backend_data/assembly.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/settings.dart';
@@ -9,11 +10,18 @@ class Storage {
   User? user;
   static Storage instance = Storage();
   Settings settings = Settings();
+  List<Assembly> ownAssemblies = [];
 
   static Future saveUser(User? user) async {
     instance.user = user;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('user', jsonEncode(user));
+  }
+
+  static Future saveOwnAssemblies(List<Assembly> assemblies) async {
+    instance.ownAssemblies = assemblies;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('ownAssemblies', jsonEncode(assemblies));
   }
 
   static Future loadFromStorage() async {
@@ -27,6 +35,11 @@ class Storage {
     final String? settingsJson = prefs.getString('settings');
     if (settingsJson != null) {
       instance.settings = Settings.fromJson(jsonDecode(settingsJson));
+    }
+
+    final String? ownAssembliesJson = prefs.getString('ownAssemblies');
+    if (ownAssembliesJson != null) {
+      instance.ownAssemblies = (jsonDecode(ownAssembliesJson) as List<dynamic>).map((e) => Assembly.fromJson(e)).toList();
     }
   }
 

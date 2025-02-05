@@ -25,6 +25,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Assembly>().HasKey(x => x.Id);
         modelBuilder.Entity<Assembly>().Navigation(x => x.Users).AutoInclude();
         modelBuilder.Entity<Assembly>().Navigation(x => x.Admins).AutoInclude();
+        modelBuilder.Entity<Assembly>().Navigation(x => x.Pending).AutoInclude();
         
         modelBuilder.Entity<Food>().HasKey(x => x.Id);
         modelBuilder.Entity<Food>().Navigation(x => x.Assembly).AutoInclude();

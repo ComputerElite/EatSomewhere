@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'screens/screen_selector.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   Storage.loadFromStorage();
 
   // from now on Storage is available everywhere
