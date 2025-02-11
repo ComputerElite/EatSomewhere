@@ -24,6 +24,7 @@ public class FoodManager
         };
         
         using var d = new AppDbContext();
+        d.Attach(user);
         d.Assemblies.Add(assembly);
         d.SaveChanges();
 

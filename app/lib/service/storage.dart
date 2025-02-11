@@ -85,5 +85,5 @@ class Storage {
 
   static Future reloadAssemblies() async {
     instance.ownAssemblies = await ServerLoader.LoadAssemblies();
-    }
+  }
 }

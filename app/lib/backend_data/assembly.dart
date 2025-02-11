@@ -16,18 +16,19 @@ class Assembly {
     required this.description,
     required this.admins,
   });
+
   factory Assembly.fromJson(Map<String, dynamic> json) {
     return Assembly(
-      id: json['id'] as String,
-      users: (json['users'] as List<dynamic>)
+      id: json['Id'] as String,
+      users: (json['Users'] as List<dynamic>)
           .map((e) => BackendUser.fromJson(e as Map<String, dynamic>))
           .toList(),
-      pending: (json['pending'] as List<dynamic>)
+      pending: (json['Pending'] as List<dynamic>)
           .map((e) => BackendUser.fromJson(e as Map<String, dynamic>))
           .toList(),
-      name: json['name'] as String,
-      description: json['description'] as String,
-      admins: (json['admins'] as List<dynamic>)
+      name: json['Name'] as String,
+      description: json['Description'] as String,
+      admins: (json['Admins'] as List<dynamic>)
           .map((e) => BackendUser.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -35,12 +36,12 @@ class Assembly {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'users': users.map((e) => e.toJson()).toList(),
-      'pending': pending.map((e) => e.toJson()).toList(),
-      'name': name,
-      'description': description,
-      'admins': admins.map((e) => e.toJson()).toList(),
+      'Id': id,
+      'Users': users.map((e) => e.toJson()).toList(),
+      'Pending': pending.map((e) => e.toJson()).toList(),
+      'Name': name,
+      'Description': description,
+      'Admins': admins.map((e) => e.toJson()).toList(),
     };
   }
 }

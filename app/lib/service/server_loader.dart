@@ -22,14 +22,14 @@ class ServerLoader {
   static Future<List<Assembly>> LoadAssemblies() async {
     var response = await ServerCom.get("/api/v1/assemblies");
     if (response.statusCode == 200) {
-      return (response.body as List<dynamic>).map((e) => Assembly.fromJson(e)).toList();
+      return (jsonDecode(response.body) as List<dynamic>).map((e) => Assembly.fromJson(e)).toList();
     }
     return [];
   }
 
   static Future<String?> createAssembly(Assembly a) async {
 
-    var response = await ServerCom.post("/api/v1/assemblies", jsonEncode(a.toJson()));
+    var response = await ServerCom.post("/api/v1/assembly", jsonEncode(a.toJson()));
     return extractError(response);
   }
 }

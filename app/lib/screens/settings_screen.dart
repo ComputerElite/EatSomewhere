@@ -136,7 +136,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ErrorDialog.showErrorDialog(context, "Failed to create assembly", error);
             return;
           }
-          Storage.reloadAssemblies();
+          await Storage.reloadAssemblies();
           Navigator.of(context).pop();
           setState(() {});
         }, child: Text("Create")),
@@ -186,6 +186,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 style: TextStyle(fontSize: t.textTheme.titleMedium!.fontSize)),
           ),
         ],),
+        Padding(padding: EdgeInsets.all(10)),
+        Text("Your assemblies", style: t.textTheme.headlineMedium, textAlign: TextAlign.center,),
         Column(children: [
           for (var assembly in Storage.getOwnAssemblies())
             PaddedCard(

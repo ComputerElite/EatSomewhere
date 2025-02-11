@@ -19,6 +19,7 @@ public class AppDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>().HasKey(x => x.Id);
+        modelBuilder.Entity<User>().Navigation(x => x.Intolerances).AutoInclude();
         
         modelBuilder.Entity<UserSession>().HasKey(x => x.Id);
 
