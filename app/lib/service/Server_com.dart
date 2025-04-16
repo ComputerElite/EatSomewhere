@@ -1,4 +1,3 @@
-import 'package:eat_somewhere/backend_data/assembly.dart';
 import 'package:eat_somewhere/service/storage.dart';
 import 'package:http/http.dart' as http;
 

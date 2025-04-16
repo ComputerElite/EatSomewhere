@@ -1,3 +1,6 @@
 [submodule "ComputerUtils"]
 	path = ComputerUtils
 	url = https://github.com/ComputerElite/ComputerUtils
+[submodule "app/flutter"]
+	path = app/flutter
+	url = https://github.com/flutter/flutter

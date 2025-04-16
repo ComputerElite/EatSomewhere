@@ -1,11 +1,12 @@
 import 'dart:math';
 
+import 'package:eat_somewhere/screens/food_screen.dart';
 import 'package:eat_somewhere/service/keyboard_callbacks.dart';
 import 'package:eat_somewhere/service/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'settings_screen.dart';
+import 'settings/settings_screen.dart';
 
 class ScreenSelector extends StatefulWidget {
   const ScreenSelector({Key? key}) : super(key: key);
@@ -24,15 +25,17 @@ class _ScreenSelectorState extends State<ScreenSelector> {
   @override
   void initState() {
     screens = [
-      SettingsScreen(),
+      FoodScreen(),
       SettingsScreen(),
     ];
     navigationBarItems = [
-      BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
+      BottomNavigationBarItem(icon: Icon(Icons.local_pizza), label: 'Food'),
       BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Fake Settings'),
     ];
     floatingActionButtons = <Widget?>[
-      null,
+      FloatingActionButton(onPressed: () {
+        FoodScreen.CreateFood();
+      }, child: Icon(Icons.add), tooltip: "Create food", heroTag: "create_food"),
       null,
     ];
 
@@ -43,15 +46,15 @@ class _ScreenSelectorState extends State<ScreenSelector> {
         if (Storage.getUser() == null) _selectedIndex = 0;
       }
       setState(() {});
-      _tap(_selectedIndex);
+      _tap(_selectedIndex, true);
     });
     super.initState();
   }
 
-  void _tap(int index) {
+  void _tap(int index, bool switchPage) {
     index = max(0, min(index, screens.length - 1));
     setState(() {
-      pageController.jumpToPage(index);
+      if(switchPage) pageController.jumpToPage(index);
       _selectedIndex = index;
     });
     Storage.savePageIndex(index);
@@ -66,13 +69,7 @@ class _ScreenSelectorState extends State<ScreenSelector> {
             autofocus: true,
             onKeyEvent: (KeyEvent event) {
               if (event is KeyDownEvent) {
-                switch (event.logicalKey) {
-                  case LogicalKeyboardKey.arrowLeft:
-                    _tap(_selectedIndex - 1);
-                    break;
-                  case LogicalKeyboardKey.arrowRight:
-                    _tap(_selectedIndex + 1);
-                    break;
+                switch (event.logicalKey) { 
                   case LogicalKeyboardKey.f5:
                     if (KeyboardCallbacks.onRefresh != null) KeyboardCallbacks.onRefresh!();
                     break;
@@ -80,26 +77,21 @@ class _ScreenSelectorState extends State<ScreenSelector> {
               }
             },
             focusNode: focusNode,
-            child: Padding(
-              padding: const EdgeInsets.only(
-                bottom: 15,
-                left: 15,
-                right: 15,
-                top: 15,
-              ),
-              child: PageView(
-                children: screens,
-                onPageChanged: _tap,
+            child: PageView(
+                children: screens.map((e) => Padding(padding: const EdgeInsets.all(15), child: e)).toList(),
+                onPageChanged: (index) {
+                  _tap(index, false);
+                },
                 controller: pageController,
               ),
-            )),
+            ),
         appBar: null,
         floatingActionButton: floatingActionButtons.elementAt(_selectedIndex),
         bottomNavigationBar: BottomNavigationBar(
           items: navigationBarItems,
           type: BottomNavigationBarType.fixed,
           currentIndex: _selectedIndex,
-          onTap: _tap,
+          onTap: (index)=> _tap(index, true),
         ));
   }
 }

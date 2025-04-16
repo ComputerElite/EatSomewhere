@@ -3,6 +3,7 @@ using System;
 using EatSomewhere.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,57 +11,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EatSomewhere.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250416113434_includes")]
+    partial class includes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.1");
-
-            modelBuilder.Entity("AssemblyUser", b =>
-                {
-                    b.Property<string>("AssemblyId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("UsersId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("AssemblyId", "UsersId");
-
-                    b.HasIndex("UsersId");
-
-                    b.ToTable("AssemblyUser");
-                });
-
-            modelBuilder.Entity("AssemblyUser1", b =>
-                {
-                    b.Property<string>("AdminsId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Assembly1Id")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("AdminsId", "Assembly1Id");
-
-                    b.HasIndex("Assembly1Id");
-
-                    b.ToTable("AssemblyUser1");
-                });
-
-            modelBuilder.Entity("AssemblyUser2", b =>
-                {
-                    b.Property<string>("Assembly2Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PendingId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Assembly2Id", "PendingId");
-
-                    b.HasIndex("PendingId");
-
-                    b.ToTable("AssemblyUser2");
-                });
 
             modelBuilder.Entity("EatSomewhere.Data.Assembly", b =>
                 {
@@ -98,7 +56,7 @@ namespace EatSomewhere.Migrations
                     b.Property<int>("PersonCount")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Recipe")
+                    b.Property<string>("Rezept")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -106,7 +64,7 @@ namespace EatSomewhere.Migrations
 
                     b.HasIndex("AssemblyId");
 
-                    b.ToTable("Foods");
+                    b.ToTable("Food");
                 });
 
             modelBuilder.Entity("EatSomewhere.Data.FoodEntry", b =>
@@ -129,9 +87,11 @@ namespace EatSomewhere.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FoodId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PayedById")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -140,7 +100,7 @@ namespace EatSomewhere.Migrations
 
                     b.HasIndex("PayedById");
 
-                    b.ToTable("FoodEntries");
+                    b.ToTable("FoodEntry");
                 });
 
             modelBuilder.Entity("EatSomewhere.Data.FoodParticipant", b =>
@@ -149,7 +109,12 @@ namespace EatSomewhere.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("FoodEntryId")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("FoodEntryId");
 
                     b.ToTable("FoodParticipant");
                 });
@@ -186,7 +151,7 @@ namespace EatSomewhere.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Ingredients");
+                    b.ToTable("Ingredient");
                 });
 
             modelBuilder.Entity("EatSomewhere.Data.IngredientEntry", b =>
@@ -198,7 +163,11 @@ namespace EatSomewhere.Migrations
                     b.Property<double>("Amount")
                         .HasColumnType("REAL");
 
+                    b.Property<string>("FoodId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("IngredientId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Unit")
@@ -206,9 +175,11 @@ namespace EatSomewhere.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("FoodId");
+
                     b.HasIndex("IngredientId");
 
-                    b.ToTable("IngredientEntries");
+                    b.ToTable("IngredientEntry");
                 });
 
             modelBuilder.Entity("EatSomewhere.Data.Tag", b =>
@@ -221,6 +192,9 @@ namespace EatSomewhere.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("FoodId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -229,6 +203,8 @@ namespace EatSomewhere.Migrations
 
                     b.HasIndex("AssemblyId");
 
+                    b.HasIndex("FoodId");
+
                     b.ToTable("Tag");
                 });
 
@@ -236,6 +212,15 @@ namespace EatSomewhere.Migrations
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AssemblyId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AssemblyId1")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AssemblyId2")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PasswordHash")
@@ -254,6 +239,12 @@ namespace EatSomewhere.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AssemblyId");
+
+                    b.HasIndex("AssemblyId1");
+
+                    b.HasIndex("AssemblyId2");
 
                     b.ToTable("Users");
                 });
@@ -284,96 +275,6 @@ namespace EatSomewhere.Migrations
                     b.ToTable("Sessions");
                 });
 
-            modelBuilder.Entity("FoodEntryFoodParticipant", b =>
-                {
-                    b.Property<string>("FoodEntryId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ParticipantsId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("FoodEntryId", "ParticipantsId");
-
-                    b.HasIndex("ParticipantsId");
-
-                    b.ToTable("FoodEntryFoodParticipant");
-                });
-
-            modelBuilder.Entity("FoodIngredientEntry", b =>
-                {
-                    b.Property<string>("FoodId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("IngredientsId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("FoodId", "IngredientsId");
-
-                    b.HasIndex("IngredientsId");
-
-                    b.ToTable("FoodIngredientEntry");
-                });
-
-            modelBuilder.Entity("FoodTag", b =>
-                {
-                    b.Property<string>("FoodId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("TagsId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("FoodId", "TagsId");
-
-                    b.HasIndex("TagsId");
-
-                    b.ToTable("FoodTag");
-                });
-
-            modelBuilder.Entity("AssemblyUser", b =>
-                {
-                    b.HasOne("EatSomewhere.Data.Assembly", null)
-                        .WithMany()
-                        .HasForeignKey("AssemblyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EatSomewhere.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("UsersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("AssemblyUser1", b =>
-                {
-                    b.HasOne("EatSomewhere.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("AdminsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EatSomewhere.Data.Assembly", null)
-                        .WithMany()
-                        .HasForeignKey("Assembly1Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("AssemblyUser2", b =>
-                {
-                    b.HasOne("EatSomewhere.Data.Assembly", null)
-                        .WithMany()
-                        .HasForeignKey("Assembly2Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EatSomewhere.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("PendingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("EatSomewhere.Data.Food", b =>
                 {
                     b.HasOne("EatSomewhere.Data.Assembly", "Assembly")
@@ -389,21 +290,32 @@ namespace EatSomewhere.Migrations
                 {
                     b.HasOne("EatSomewhere.Data.Food", "Food")
                         .WithMany()
-                        .HasForeignKey("FoodId");
+                        .HasForeignKey("FoodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("EatSomewhere.Users.User", "PayedBy")
                         .WithMany()
-                        .HasForeignKey("PayedById");
+                        .HasForeignKey("PayedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Food");
 
                     b.Navigation("PayedBy");
                 });
 
+            modelBuilder.Entity("EatSomewhere.Data.FoodParticipant", b =>
+                {
+                    b.HasOne("EatSomewhere.Data.FoodEntry", null)
+                        .WithMany("Participants")
+                        .HasForeignKey("FoodEntryId");
+                });
+
             modelBuilder.Entity("EatSomewhere.Data.Ingredient", b =>
                 {
                     b.HasOne("EatSomewhere.Data.Assembly", "Assembly")
-                        .WithMany("Ingredients")
+                        .WithMany()
                         .HasForeignKey("AssemblyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -417,9 +329,15 @@ namespace EatSomewhere.Migrations
 
             modelBuilder.Entity("EatSomewhere.Data.IngredientEntry", b =>
                 {
+                    b.HasOne("EatSomewhere.Data.Food", null)
+                        .WithMany("Ingredients")
+                        .HasForeignKey("FoodId");
+
                     b.HasOne("EatSomewhere.Data.Ingredient", "Ingredient")
                         .WithMany()
-                        .HasForeignKey("IngredientId");
+                        .HasForeignKey("IngredientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Ingredient");
                 });
@@ -432,57 +350,47 @@ namespace EatSomewhere.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("EatSomewhere.Data.Food", null)
+                        .WithMany("Tags")
+                        .HasForeignKey("FoodId");
+
                     b.Navigation("Assembly");
                 });
 
-            modelBuilder.Entity("FoodEntryFoodParticipant", b =>
+            modelBuilder.Entity("EatSomewhere.Users.User", b =>
                 {
-                    b.HasOne("EatSomewhere.Data.FoodEntry", null)
-                        .WithMany()
-                        .HasForeignKey("FoodEntryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("EatSomewhere.Data.Assembly", null)
+                        .WithMany("Admins")
+                        .HasForeignKey("AssemblyId");
 
-                    b.HasOne("EatSomewhere.Data.FoodParticipant", null)
-                        .WithMany()
-                        .HasForeignKey("ParticipantsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+                    b.HasOne("EatSomewhere.Data.Assembly", null)
+                        .WithMany("Pending")
+                        .HasForeignKey("AssemblyId1");
 
-            modelBuilder.Entity("FoodIngredientEntry", b =>
-                {
-                    b.HasOne("EatSomewhere.Data.Food", null)
-                        .WithMany()
-                        .HasForeignKey("FoodId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EatSomewhere.Data.IngredientEntry", null)
-                        .WithMany()
-                        .HasForeignKey("IngredientsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("FoodTag", b =>
-                {
-                    b.HasOne("EatSomewhere.Data.Food", null)
-                        .WithMany()
-                        .HasForeignKey("FoodId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EatSomewhere.Data.Tag", null)
-                        .WithMany()
-                        .HasForeignKey("TagsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("EatSomewhere.Data.Assembly", null)
+                        .WithMany("Users")
+                        .HasForeignKey("AssemblyId2");
                 });
 
             modelBuilder.Entity("EatSomewhere.Data.Assembly", b =>
                 {
+                    b.Navigation("Admins");
+
+                    b.Navigation("Pending");
+
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("EatSomewhere.Data.Food", b =>
+                {
                     b.Navigation("Ingredients");
+
+                    b.Navigation("Tags");
+                });
+
+            modelBuilder.Entity("EatSomewhere.Data.FoodEntry", b =>
+                {
+                    b.Navigation("Participants");
                 });
 
             modelBuilder.Entity("EatSomewhere.Users.User", b =>

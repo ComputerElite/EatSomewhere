@@ -1,4 +1,5 @@
 import 'package:eat_somewhere/backend_data/backend_login_response.dart';
+import 'package:eat_somewhere/screens/settings/assembly.dart';
 import 'package:eat_somewhere/service/LoginManager.dart';
 import 'package:eat_somewhere/service/server_loader.dart';
 import 'package:eat_somewhere/widgets/error_dialog.dart';
@@ -6,13 +7,13 @@ import 'package:eat_somewhere/widgets/loading_dialog.dart';
 import 'package:eat_somewhere/widgets/user_widget.dart';
 import 'package:flutter/material.dart';
 
-import '../backend_data/assembly.dart';
-import '../data/user.dart';
-import '../main.dart';
-import '../service/Server_com.dart';
-import '../service/storage.dart';
-import '../widgets/constrained_container.dart';
-import '../widgets/padded_card.dart';
+import '../../backend_data/assembly.dart';
+import '../../data/user.dart';
+import '../../main.dart';
+import '../../service/Server_com.dart';
+import '../../service/storage.dart';
+import '../../widgets/constrained_container.dart';
+import '../../widgets/padded_card.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -188,17 +189,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],),
         Padding(padding: EdgeInsets.all(10)),
         Text("Your assemblies", style: t.textTheme.headlineMedium, textAlign: TextAlign.center,),
-        Column(children: [
-          for (var assembly in Storage.getOwnAssemblies())
-            PaddedCard(
-              child: Column(
-                children: [
-                  Text(assembly.name, style: t.textTheme.headlineSmall),
-                  Text(assembly.description, style: t.textTheme.bodySmall),
-                ],
-              ),
-            ),
-        ],),
+        Column(children: 
+          Storage.getOwnAssemblies().map((assembly) => AssemblyCard(assembly: assembly, onSelected: () {
+            setState(() {
+              
+            });
+          },)).toList()
+        ),
         FilledButton(onPressed: createAssembly, child: Text("Create Assembly")),
         Padding(padding: EdgeInsets.all(5)),
         Row(

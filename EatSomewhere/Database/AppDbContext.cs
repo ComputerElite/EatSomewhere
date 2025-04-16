@@ -9,6 +9,10 @@ public class AppDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<UserSession> Sessions { get; set; }
     public DbSet<Assembly> Assemblies { get; set; }
+    public DbSet<Ingredient?> Ingredients { get; set; }
+    public DbSet<IngredientEntry> IngredientEntries { get; set; }
+    public DbSet<Food> Foods { get; set; }
+    public DbSet<FoodEntry> FoodEntries { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -25,22 +29,30 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<Assembly>().HasKey(x => x.Id);
         modelBuilder.Entity<Assembly>().Navigation(x => x.Users).AutoInclude();
+        modelBuilder.Entity<Assembly>().HasMany(x => x.Users).WithMany();
         modelBuilder.Entity<Assembly>().Navigation(x => x.Admins).AutoInclude();
+        modelBuilder.Entity<Assembly>().HasMany(x => x.Admins).WithMany();
         modelBuilder.Entity<Assembly>().Navigation(x => x.Pending).AutoInclude();
+        modelBuilder.Entity<Assembly>().HasMany(x => x.Pending).WithMany();
+        modelBuilder.Entity<Assembly>().HasMany(x => x.Ingredients).WithOne(x => x.Assembly);
         
         modelBuilder.Entity<Food>().HasKey(x => x.Id);
         modelBuilder.Entity<Food>().Navigation(x => x.Assembly).AutoInclude();
         modelBuilder.Entity<Food>().Navigation(x => x.Ingredients).AutoInclude();
+        modelBuilder.Entity<Food>().HasMany(x => x.Ingredients).WithMany();
         modelBuilder.Entity<Food>().Navigation(x => x.Tags).AutoInclude();
+        modelBuilder.Entity<Food>().HasMany(x => x.Tags).WithMany();
         
         modelBuilder.Entity<FoodEntry>().HasKey(x => x.Id);
         modelBuilder.Entity<FoodEntry>().Navigation(x => x.Food).AutoInclude();
         modelBuilder.Entity<FoodEntry>().Navigation(x => x.Participants).AutoInclude();
+        modelBuilder.Entity<FoodEntry>().HasMany(x => x.Participants).WithMany();
         modelBuilder.Entity<FoodEntry>().Navigation(x => x.PayedBy).AutoInclude();
         
         modelBuilder.Entity<FoodParticipant>().HasKey(x => x.Id);
         
         modelBuilder.Entity<Ingredient>().HasKey(x => x.Id);
+        modelBuilder.Entity<Ingredient>().Navigation(x => x.Assembly).AutoInclude();
         
         modelBuilder.Entity<IngredientEntry>().HasKey(x => x.Id);
         modelBuilder.Entity<IngredientEntry>().Navigation(x => x.Ingredient).AutoInclude();

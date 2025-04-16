@@ -10,6 +10,6 @@ public class Food
     public Assembly Assembly { get; set; }
     public List<IngredientEntry> Ingredients { get; set; }
     public List<Tag> Tags { get; set; }
-    public int PersonCount { get; set; }
-    public string Rezept { get; set; }
+    public int PersonCount { get; set; } = 1;
+    public string Recipe { get; set; }
 }

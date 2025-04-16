@@ -6,12 +6,15 @@ import 'screens/screen_selector.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  Storage.loadFromStorage();
-  Storage.initialStart();
+  Storage.loadFromStorage().then((e) {
+    Storage.initialStart();
+  });
 
   // from now on Storage is available everywhere
   runApp(MyApp());
 }
+
+final navigatorKey = GlobalKey<NavigatorState>();
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -36,6 +39,7 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
       return MaterialApp(
+        navigatorKey: navigatorKey,
         title: 'EatSomewhere',
         theme: lightColorScheme != null ? ThemeData(
           useMaterial3: true,

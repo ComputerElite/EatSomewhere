@@ -2,7 +2,8 @@ namespace EatSomewhere.Data;
 
 public enum Unit
 {
-    Gramm,
-    Milliliter,
-    Stueck
+    Gramm = 0,
+    Milliliter = 1,
+    Piece = 2,
+    Pinch = 3,
 }
