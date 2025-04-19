@@ -29,8 +29,7 @@ class _FoodWidgetState extends State<FoodWidget> {
           children: [
           Text(widget.food.name ?? "Unknown"),
           Text("~ ${PriceHelper.formatPriceWithUnit(widget.food.estimatedCost)}"),
-          Text(
-              "~ ${PriceHelper.formatPriceWithUnit((widget.food.estimatedCost / widget.food.personCount).ceil())} per person"),
+          Text("~ ${PriceHelper.formatPriceWithUnit(widget.food.getCostPerPerson())} per person"),
         ]),
         Row(
           spacing: 10,

@@ -23,7 +23,7 @@ class ErrorDialog extends StatelessWidget {
     );
   } 
 
-  static void showErrorDialog(String title, String message) {
+  static void show(String title, String message) {
     showDialog(context: navigatorKey.currentContext!, builder: (context) => ErrorDialog(message: message, title: title));
   }
 }

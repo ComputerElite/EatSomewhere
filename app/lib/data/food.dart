@@ -38,6 +38,10 @@ class Food {
     recipe = json["Recipe"];
     archived = json["Archived"];
   }
+
+  int getCostPerPerson() {
+    return (estimatedCost / personCount).ceil();
+  }
 }
 
 class Tag {

@@ -83,7 +83,7 @@ class _CreateIngredientDialogState extends State<CreateIngredientDialog> {
                 double.tryParse(amountController.text) ?? 1;
             String? error = await Storage.updateIngredient(widget.ingredient);
             if (error != null) {
-              ErrorDialog.showErrorDialog("Error", error);
+              ErrorDialog.show("Error", error);
               return;
             }
             Navigator.pop(context, widget.ingredient);

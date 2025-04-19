@@ -1,4 +1,5 @@
 
+import 'package:eat_somewhere/main.dart';
 import 'package:flutter/material.dart';
 
 class LoadingDialog extends StatelessWidget {
@@ -18,9 +19,9 @@ class LoadingDialog extends StatelessWidget {
         actions: []);
   }
 
-  static void show(BuildContext context, String title) {
+  static void show(String title) {
     showDialog(
-        context: context,
+        context: navigatorKey.currentContext!,
         builder: (BuildContext context) {
           return LoadingDialog(title: title);
         });

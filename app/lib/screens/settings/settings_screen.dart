@@ -3,6 +3,7 @@ import 'package:eat_somewhere/screens/settings/assembly.dart';
 import 'package:eat_somewhere/service/LoginManager.dart';
 import 'package:eat_somewhere/service/server_loader.dart';
 import 'package:eat_somewhere/widgets/error_dialog.dart';
+import 'package:eat_somewhere/widgets/info_dialog.dart';
 import 'package:eat_somewhere/widgets/loading_dialog.dart';
 import 'package:eat_somewhere/widgets/user_widget.dart';
 import 'package:flutter/material.dart';
@@ -23,126 +24,203 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  @override void initState() {
+    // TODO: implement initState
+    super.initState();
+    Storage.onDataReload = () {
+      setState(() {});
+    };
+  }
   void startLogin(BuildContext context, bool registerPrompt) {
     TextEditingController serverController = TextEditingController();
     TextEditingController usernameController = TextEditingController();
     TextEditingController passwordController = TextEditingController();
-    
-    showDialog(context: context, builder: (context) => AlertDialog(
-      title: Text(registerPrompt ? "Register" : "Log in"),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: serverController,
-            decoration: InputDecoration(
-              labelText: "Server",
-              hintText: "https://example.com",
-            ),
-          ),
-          AutofillGroup(child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: usernameController,
-                decoration: InputDecoration(
-                  labelText: "Username",
-                  hintText: "username"
-                ),
-                autofillHints: [AutofillHints.username],
+
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: Text(registerPrompt ? "Register" : "Log in"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: serverController,
+                    decoration: InputDecoration(
+                      labelText: "Server",
+                      hintText: "https://example.com",
+                    ),
+                  ),
+                  AutofillGroup(
+                      child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        controller: usernameController,
+                        decoration: InputDecoration(
+                            labelText: "Username", hintText: "username"),
+                        autofillHints: [AutofillHints.username],
+                      ),
+                      TextField(
+                        controller: passwordController,
+                        decoration: InputDecoration(
+                          labelText: "Password",
+                        ),
+                        autofillHints: [AutofillHints.password],
+                        obscureText: true,
+                      ),
+                    ],
+                  ))
+                ],
               ),
-              TextField(
-                controller: passwordController,
-                decoration: InputDecoration(
-                  labelText: "Password",
-                ),
-                autofillHints: [AutofillHints.password],
-                obscureText: true,
-              ),],
-          ))
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: Text("Close"),
-        ),
-        TextButton(onPressed: () async {
-          LoadingDialog.show(context, registerPrompt ? "Registering" : "Logging in");
-          String username = usernameController.text;
-          String password = passwordController.text;
-          String server = serverController.text;
-
-          LoginManager l = LoginManager(server: server, username: username, password: password);
-
-          LoginResult response = await l.loginOrRegister(registerPrompt);
-          Navigator.of(context).pop();
-          if(response.error != null) {
-            showDialog(context: context, builder: (context) => AlertDialog(
-              title: Text("Error"),
-              content: Text(response.error!),
               actions: [
-                TextButton(onPressed: () {
-                  Navigator.of(context).pop();
-                }, child: Text("Close")),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("Close"),
+                ),
+                TextButton(
+                    onPressed: () async {
+                      LoadingDialog.show(
+                          registerPrompt ? "Registering" : "Logging in");
+                      String username = usernameController.text;
+                      String password = passwordController.text;
+                      String server = serverController.text;
+
+                      LoginManager l = LoginManager(
+                          server: server,
+                          username: username,
+                          password: password);
+
+                      LoginResult response =
+                          await l.loginOrRegister(registerPrompt);
+                      Navigator.of(context).pop();
+                      if (response.error != null) {
+                        showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                                  title: Text("Error"),
+                                  content: Text(response.error!),
+                                  actions: [
+                                    TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text("Close")),
+                                  ],
+                                ));
+                        return;
+                      }
+                      Storage.setUser(response.user!);
+                      setState(() {});
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(registerPrompt ? "Register" : "Log in")),
               ],
             ));
-            return;
-          }
-          Storage.setUser(response.user!);
-          setState(() {});
-          Navigator.of(context).pop();
-        }, child: Text(registerPrompt ? "Register" : "Log in")),
-      ],
-    ));
   }
 
   void createAssembly() {
     TextEditingController nameController = TextEditingController();
     TextEditingController descriptionController = TextEditingController();
-    showDialog(context: context, builder: (context) => AlertDialog(
-      title: Text("Create Assembly"),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: nameController,
-            decoration: InputDecoration(
-              labelText: "Name",
-            ),
-          ),
-          TextField(
-            controller: descriptionController,
-            decoration: InputDecoration(
-              labelText: "Description",
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: Text("Close"),
-        ),
-        TextButton(onPressed: () async {
-          String name = nameController.text;
-          String description = descriptionController.text;
-          Assembly a = Assembly(id: null, name: name, description: description, users: [], pending: [], admins: []);
-          String? error = await ServerLoader.createAssembly(a);
-          if(error != null) {
-            ErrorDialog.showErrorDialog("Failed to create assembly", error);
-            return;
-          }
-          await Storage.reloadAssemblies();
-          Navigator.of(context).pop();
-          setState(() {});
-        }, child: Text("Create")),
-      ],
-    ));
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: Text("Create Assembly"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: "Name",
+                    ),
+                  ),
+                  TextField(
+                    controller: descriptionController,
+                    decoration: InputDecoration(
+                      labelText: "Description",
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("Close"),
+                ),
+                TextButton(
+                    onPressed: () async {
+                      String name = nameController.text;
+                      String description = descriptionController.text;
+                      Assembly a = Assembly(
+                          id: null,
+                          name: name,
+                          description: description,
+                          users: [],
+                          pending: [],
+                          admins: []);
+                      String? error = await ServerLoader.createAssembly(a);
+                      if (error != null) {
+                        ErrorDialog.show("Failed to create assembly", error);
+                        return;
+                      }
+                      await Storage.reloadAssemblies();
+                      Navigator.of(context).pop();
+                      setState(() {});
+                    },
+                    child: Text("Create")),
+              ],
+            ));
+  }
+
+  void joinAssembly() {
+    TextEditingController nameController = TextEditingController();
+
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: Text("Join Assembly"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("Enter the name of the assembly you want to join"),
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: "Name",
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("Close"),
+                ),
+                TextButton(
+                    onPressed: () async {
+                      String name = nameController.text;
+
+                      ErrorContainer<CreatedResponse> error =
+                          await ServerLoader.joinAssembly(name);
+                      if (error.error != null) {
+                        ErrorDialog.show(
+                            "Failed to join assembly", error.error!);
+                        return;
+                      }
+                      await Storage.reloadAssemblies();
+                      Navigator.of(context).pop();
+                      InfoDialog.show("Success", error.value!.data);
+                      setState(() {});
+                    },
+                    child: Text("Join")),
+              ],
+            ));
   }
 
   @override
@@ -158,45 +236,61 @@ class _SettingsScreenState extends State<SettingsScreen> {
               'Settings',
               style: t.textTheme.headlineMedium,
             ),
-            (Storage.getUser() == null) ?
-              PaddedCard(
-                child: Text(
-                    "You are not logged in, please log in to access your journal",
-                    style: t.textTheme.headlineSmall),
-              )
-            :
-            UserWidget(user: Storage.getUser()!),
+            (Storage.getUser() == null)
+                ? PaddedCard(
+                    child: Text(
+                        "You are not logged in, please log in to access your journal",
+                        style: t.textTheme.headlineSmall),
+                  )
+                : UserWidget(user: Storage.getUser()!),
           ],
         ),
         Row(
           spacing: 10,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-          FilledButton(
-            onPressed: () async {
-              startLogin(context, false);
-            },
-            child: Text("Log in",
-                style: TextStyle(fontSize: t.textTheme.titleMedium!.fontSize)),
-          ),
-          FilledButton(
-            onPressed: () async {
-              startLogin(context, true);
-            },
-            child: Text("Register",
-                style: TextStyle(fontSize: t.textTheme.titleMedium!.fontSize)),
-          ),
-        ],),
-        Padding(padding: EdgeInsets.all(10)),
-        Text("Your assemblies", style: t.textTheme.headlineMedium, textAlign: TextAlign.center,),
-        Column(children: 
-          Storage.getOwnAssemblies().map((assembly) => AssemblyCard(assembly: assembly, onSelected: () {
-            setState(() {
-              
-            });
-          },)).toList()
+            FilledButton(
+              onPressed: () async {
+                startLogin(context, false);
+              },
+              child: Text("Log in",
+                  style:
+                      TextStyle(fontSize: t.textTheme.titleMedium!.fontSize)),
+            ),
+            FilledButton(
+              onPressed: () async {
+                startLogin(context, true);
+              },
+              child: Text("Register",
+                  style:
+                      TextStyle(fontSize: t.textTheme.titleMedium!.fontSize)),
+            ),
+          ],
         ),
-        FilledButton(onPressed: createAssembly, child: Text("Create Assembly")),
+        Padding(padding: EdgeInsets.all(10)),
+        Text(
+          "Your assemblies",
+          style: t.textTheme.headlineMedium,
+          textAlign: TextAlign.center,
+        ),
+        Column(
+            children: Storage.getOwnAssemblies()
+                .map((assembly) => AssemblyCard(
+                      assembly: assembly,
+                      onSelected: () {
+                        setState(() {});
+                      },
+                    ))
+                .toList()),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 10,
+          children: [
+            FilledButton(onPressed: joinAssembly, child: Text("Join Assembly")),
+            FilledButton(
+                onPressed: createAssembly, child: Text("Create Assembly")),
+          ],
+        ),
         Padding(padding: EdgeInsets.all(5)),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

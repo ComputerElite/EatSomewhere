@@ -66,7 +66,7 @@ class ServerLoader {
     if (response.statusCode == 200) {
       return ErrorContainer(CreatedResponse.fromJson(jsonDecode(response.body)), null);
     } else {
-      return ErrorContainer(null, "Error: ${response.statusCode}");
+      return ErrorContainer(null, "Error: ${response.statusCode} ${response.body}");
     }
   }
 
@@ -76,7 +76,48 @@ class ServerLoader {
     if (response.statusCode == 200) {
       return ErrorContainer(CreatedResponse.fromJson(jsonDecode(response.body)), null);
     } else {
-      return ErrorContainer(null, "Error: ${response.statusCode}");
+      return ErrorContainer(null, "Error: ${response.statusCode} ${response.body}");
+    }
+  }
+
+  static Future<ErrorContainer<CreatedResponse>> joinAssembly(String name) async {
+    var response = await ServerCom.post("/api/v1/joinassembly", jsonEncode({"Name": name}));
+    print(response.body);
+    if (response.statusCode == 200) {
+      return ErrorContainer(CreatedResponse.fromJson(jsonDecode(response.body)), null);
+    } else {
+      return ErrorContainer(null, "Error: ${response.statusCode} ${response.body}");
+    }
+  }
+
+  static Future<ErrorContainer<CreatedResponse>> promoteToAdmin(String s, String t) async{
+    var response = await ServerCom.post("/api/v1/promote", jsonEncode({"AssemblyId": s, "UserId": t}));
+    print(response.body);
+    if (response.statusCode == 200) {
+      return ErrorContainer(CreatedResponse.fromJson(jsonDecode(response.body)), null);
+    } else {
+      return ErrorContainer(null, "Error: ${response.statusCode} ${response.body}");
+    }
+
+  }
+
+  static Future<ErrorContainer<CreatedResponse>> removeUserFromAssembly(String s, String t) async {
+    var response = await ServerCom.post("/api/v1/removeuser", jsonEncode({"AssemblyId": s, "UserId": t}));
+    print(response.body);
+    if (response.statusCode == 200) {
+      return ErrorContainer(CreatedResponse.fromJson(jsonDecode(response.body)), null);
+    } else {
+      return ErrorContainer(null, "Error: ${response.statusCode} ${response.body}");
+    }
+  }
+
+  static Future<ErrorContainer<CreatedResponse>> addToAssembly(String s, String t) async {
+    var response = await ServerCom.post("/api/v1/adduser", jsonEncode({"AssemblyId": s, "UserId": t}));
+    print(response.body);
+    if (response.statusCode == 200) {
+      return ErrorContainer(CreatedResponse.fromJson(jsonDecode(response.body)), null);
+    } else {
+      return ErrorContainer(null, "Error: ${response.statusCode} ${response.body}");
     }
   }
 }
@@ -85,7 +126,7 @@ class CreatedResponse {
   String? createdId;
   String? error;
   bool? success;
-  Map<String, dynamic>? data;
+  dynamic? data;
 
   CreatedResponse({this.createdId, this.error, this.success = false});
 

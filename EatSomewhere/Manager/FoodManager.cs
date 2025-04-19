@@ -39,7 +39,11 @@ public class FoodManager
     {
         using var d = new AppDbContext();
         d.Attach(user);
-        return d.Assemblies.Where(a => a.Users.Contains(user)).ToList();
+        return d.Assemblies.Where(a => a.Users.Contains(user))
+            .Include(x => x.Pending)
+            .Include(x => x.Users)
+            .Include(x => x.Admins)
+            .ToList();
     }
 
     public static ApiResponse<Assembly> CreateAssembly(User user, Assembly toCreate)
@@ -241,13 +245,14 @@ public class FoodManager
         };
     }
 
-    public static ApiResponse RequestJoinAssembly(User user, string name)
+    public static ApiResponse<String> RequestJoinAssembly(User user, string name)
     {
         using var d = new AppDbContext();
         d.Attach(user);
-        List<Assembly> foundAssemblies = d.Assemblies.Where(a => a.Name == name).ToList();
+        
+        List<Assembly> assemblies = d.Assemblies.Where(x => x.Name == name).Include(x => x.Pending).ToList();
 
-        foreach (Assembly a in foundAssemblies)
+        foreach (Assembly a in assemblies)
         {
             if (a.Pending.Any(x => x.Id == user.Id)) continue;
             a.Pending.Add(user);
@@ -255,21 +260,24 @@ public class FoodManager
 
         d.SaveChanges();
         
-        return new ApiResponse
+        return new ApiResponse<String>
         {
             Success = true,
-            Error = "If the assembly exists a join requests has been issued. An Admin of the Assembly must approve it."
+            Data = "If the assembly exists a join requests has been issued. An Admin of the Assembly must approve it. Check your assemblies from time to time to see whether you've been approved."
         };
     }
 
-    public static ApiResponse ApproveJoinAssembly(User user, string assemblyId, string userId)
+    public static ApiResponse<String> ApproveJoinAssembly(User user, string assemblyId, string userId)
     {
         using var d = new AppDbContext();
         d.Attach(user);
-        Assembly? foundAssembly = d.Assemblies.FirstOrDefault(a => a.Id == assemblyId);
+        Assembly? foundAssembly = d.Assemblies.Where(a => a.Id == assemblyId)
+            .Include(x => x.Pending)
+            .Include(x => x.Admins)
+            .Include(x => x.Users).FirstOrDefault();
         if (foundAssembly == null)
         {
-            return new ApiResponse
+            return new ApiResponse<String>
             {
                 Error = "Couldn't find assembly",
                 Success = false
@@ -278,29 +286,20 @@ public class FoodManager
         
         if (!foundAssembly.Admins.Contains(user))
         {
-            return new ApiResponse
+            return new ApiResponse<String>
             {
                 Error = "User is not an admin of this assembly",
                 Success = false
             };
         }
         
-        User? foundUser = d.Users.FirstOrDefault(u => u.Id == userId);
+        User? foundUser = foundAssembly.Pending.FirstOrDefault(u => u.Id == userId);
         
         if (foundUser == null)
         {
-            return new ApiResponse
+            return new ApiResponse<String>
             {
-                Error = "Couldn't find user",
-                Success = false
-            };
-        }
-        
-        if (!foundAssembly.Pending.Contains(foundUser))
-        {
-            return new ApiResponse
-            {
-                Error = "User has not requested to join this assembly",
+                Error = "User hasn't requested to join this assembly",
                 Success = false
             };
         }
@@ -310,21 +309,24 @@ public class FoodManager
 
         d.SaveChanges();
         
-        return new ApiResponse
+        return new ApiResponse<String>
         {
             Success = true,
-            Error = $"Successfully added {foundUser.Username} to {foundAssembly.Name}."
+            Data = $"Successfully added {foundUser.Username} to {foundAssembly.Name}."
         };
     }
 
-    public static ApiResponse RemoveUserFromAssembly(User user, string assemblyId, string userId)
+    public static ApiResponse<String> RemoveUserFromAssembly(User user, string assemblyId, string userId)
     {
         using var d = new AppDbContext();
         d.Attach(user);
-        Assembly? foundAssembly = d.Assemblies.FirstOrDefault(a => a.Id == assemblyId);
+        Assembly? foundAssembly = d.Assemblies.Where(a => a.Id == assemblyId)
+            .Include(x => x.Admins)
+            .Include(x => x.Users)
+            .Include(x => x.Pending).FirstOrDefault();
         if (foundAssembly == null)
         {
-            return new ApiResponse
+            return new ApiResponse<String>
             {
                 Error = "Couldn't find assembly",
                 Success = false
@@ -333,8 +335,8 @@ public class FoodManager
         
         if (!foundAssembly.Admins.Contains(user))
         {
-            return new ApiResponse
-            {
+            return new ApiResponse<String>
+            {   
                 Error = "User is not an admin of this assembly",
                 Success = false
             };
@@ -348,7 +350,7 @@ public class FoodManager
         
         if (foundUser == null)
         {
-            return new ApiResponse
+            return new ApiResponse<String>
             {
                 Error = "Couldn't find user in assembly",
                 Success = false
@@ -358,20 +360,25 @@ public class FoodManager
         // admins CAN be removed
         foundAssembly.Users.Remove(foundUser);
         foundAssembly.Admins.Remove(foundUser);
+        foundAssembly.Pending.Remove(foundUser);
 
         d.SaveChanges();
         
-        return new ApiResponse
+        return new ApiResponse<String>
         {
             Success = true,
-            Error = $"Successfully removed {foundUser.Username} from {foundAssembly.Name}."
+            Data = $"Successfully removed {foundUser.Username} from {foundAssembly.Name}."
         };
     }
 
     public static Assembly? GetAssembly(User user, string id)
     {
         using var d = new AppDbContext();
-        return d.Assemblies.FirstOrDefault(a => a.Id == id && a.Users.Contains(user));
+        return d.Assemblies.Where(a => a.Id == id && a.Users.Contains(user))
+            .Include(x => x.Pending)
+            .Include(x => x.Users)
+            .Include(x => x.Admins)
+            .FirstOrDefault();
     }
     
     public static Ingredient? GetIngredient(User user, string id)
@@ -415,6 +422,48 @@ public class FoodManager
         return new ApiResponse
         {
             Success = true
+        };
+    }
+
+    public static ApiResponse<String> PromoteUserToAdmin(User user, string assemblyId, string userId)
+    {
+        using var d = new AppDbContext();
+        d.Attach(user);
+        Assembly? assembly = GetAssembly(user, assemblyId);
+        if (assembly == null)
+        {
+            return new ApiResponse<String>
+            {
+                Success = false,
+                Error = "Assembly not found"
+            };
+        }
+
+        d.Attach(assembly);
+        if (assembly.Admins.Contains(user))
+        {
+            return new ApiResponse<String>
+            {
+                Success = true,
+                Error = "User is already an admin of this assembly",
+                Data = "User is already an admin of this assembly"
+            };
+        }
+        User? foundUser = assembly.Users.FirstOrDefault(x => x.Id == userId);
+        if (foundUser == null)
+        {
+            return new ApiResponse<String>
+            {
+                Success = false,
+                Error = "User not found in assembly"
+            };
+        }
+        assembly.Admins.Add(foundUser);
+        d.SaveChanges();
+        return new ApiResponse<String>
+        {
+            Success = true,
+            Data = "Successfully promoted user to admin"
         };
     }
 }

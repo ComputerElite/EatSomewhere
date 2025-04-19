@@ -21,7 +21,6 @@ class _CreateFoodScreenState extends State<CreateFoodScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     nameController.text = widget.food.name ?? "";
     recipeController.text = widget.food.recipe ?? "";
@@ -163,7 +162,7 @@ class _CreateFoodScreenState extends State<CreateFoodScreen> {
                 onPressed: () async {
                   String? error = await Storage.updateFood(widget.food);
                   if (error != null) {
-                    ErrorDialog.showErrorDialog("Error", error);
+                    ErrorDialog.show("Error", error);
                     return;
                   }
                   Navigator.pop(context, widget.food);

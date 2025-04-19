@@ -24,6 +24,13 @@ class FoodScreen extends StatefulWidget {
 }
 
 class _FoodScreenState extends State<FoodScreen> {
+  @override void initState() {
+    // TODO: implement initState
+    super.initState();
+    Storage.onDataReload = () {
+      setState(() {});
+    };
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

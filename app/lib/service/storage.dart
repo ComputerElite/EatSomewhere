@@ -16,6 +16,9 @@ class Storage {
   List<Assembly> ownAssemblies = [];
   List<Ingredient> ingredients = [];
   List<Food> foods = [];
+
+  static Function() onDataReload = () {};
+
   static Future saveUser(User? user) async {
     instance.user = user;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -84,6 +87,7 @@ class Storage {
     await reloadAssemblies();
     await reloadFoods();
     await reloadIngredients();
+    
   }
 
   static List<Assembly> getOwnAssemblies() {
@@ -92,14 +96,17 @@ class Storage {
 
   static Future reloadAssemblies() async {
     instance.ownAssemblies = await ServerLoader.LoadAssemblies();
+    onDataReload();
   }
 
   static Future reloadIngredients() async {
     instance.ingredients = await ServerLoader.LoadIngredients();
+    onDataReload();
   }
 
   static Future reloadFoods() async {
     instance.foods = await ServerLoader.LoadFoods();
+    onDataReload();
   }
 
   static getIngredientsForCurrentAssembly() {
