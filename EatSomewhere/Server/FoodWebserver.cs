@@ -9,7 +9,7 @@ namespace EatSomewhere.Server;
 
 public class FoodWebserver
 {
-    public static void RegisterRESTForType<T>(string path, HttpServer server, Func<User, string, T?> getFunction, Func<User, T, ApiResponse> postFunction, Func<User, string, ApiResponse> deleteFunction)
+    public static void RegisterRESTForType<T>(string path, HttpServer server, Func<User, string, T?> getFunction, Func<User, T, ApiResponse<T>> postFunction, Func<User, string, ApiResponse> deleteFunction)
     {
         server.AddRoute("GET", path, request =>
         {
@@ -64,8 +64,16 @@ public class FoodWebserver
     }
     public static void AddFoodRoutes(HttpServer server)
     {
+        
+        
+        ////// Food //////
+        /// DELETE archives food
+        RegisterListForType<Food>("/api/v1/foods", server, FoodManager.GetFoods);
+        RegisterRESTForType<Food>("/api/v1/food/", server, FoodManager.GetFood, FoodManager.CreateFood, FoodManager.DeleteFood);
+
         ////// INGREDIENTS //////
         /// DO NOT CHANGE ORDER, THIS IS IMPORTANT FOR MY CURSED HTTP ROUTE MATCHING
+        /// DELETE archives ingredients
         RegisterListForType("/api/v1/ingredients", server, FoodManager.GetIngredients);
         RegisterRESTForType("/api/v1/ingredient/", server, FoodManager.GetIngredient, FoodManager.CreateIngredient, FoodManager.DeleteIngredient);
 

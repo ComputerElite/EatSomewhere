@@ -1,5 +1,4 @@
-import 'ingredient.dart';
-
+import 'package:eat_somewhere/data/food.dart';
 class BackendUser {
   String Id;
   String Username;

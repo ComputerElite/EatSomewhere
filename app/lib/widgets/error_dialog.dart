@@ -1,3 +1,4 @@
+import 'package:eat_somewhere/main.dart';
 import 'package:flutter/material.dart';
 
 class ErrorDialog extends StatelessWidget {
@@ -22,7 +23,7 @@ class ErrorDialog extends StatelessWidget {
     );
   } 
 
-  static void showErrorDialog(BuildContext context, String title, String message) {
-    showDialog(context: context, builder: (context) => ErrorDialog(message: message, title: title));
+  static void showErrorDialog(String title, String message) {
+    showDialog(context: navigatorKey.currentContext!, builder: (context) => ErrorDialog(message: message, title: title));
   }
 }

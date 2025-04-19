@@ -5,6 +5,8 @@ class Food {
   List<IngredientEntry> ingredients = [];
   List<Tag> tags = [];
   int personCount = 1;
+  int estimatedCost = 0;
+  bool archived = false;
   String recipe = "unknown recipe";
 
   Food();
@@ -19,7 +21,9 @@ class Food {
       "Ingredients": ingredients.map((e) => e.toJson()).toList(),
       "Tags": tags.map((e) => e.toJson()).toList(),
       "PersonCount": personCount,
+      "EstimatedCost": estimatedCost,
       "Recipe": recipe,
+      "Archived": archived,
     };
   }
 
@@ -30,7 +34,9 @@ class Food {
     ingredients = (json["Ingredients"] as List<dynamic>).map((e) => IngredientEntry.fromJson(e)).toList();
     tags = (json["Tags"] as List<dynamic>).map((e) => Tag.fromJson(e)).toList();
     personCount = json["PersonCount"];
+    estimatedCost = json["EstimatedCost"];
     recipe = json["Recipe"];
+    archived = json["Archived"];
   }
 }
 
@@ -60,22 +66,33 @@ class IngredientEntry {
   String? id;
   Ingredient? ingredient;
   double amount = 1;
-  Unit unit = Unit.gramm;
+  int estimatedCost = 0;
+
+  IngredientEntry();
+  IngredientEntry.fromIngredient(Ingredient ingredient) {
+    this.ingredient = ingredient;
+    amount = ingredient.amount;
+  }
 
   toJson() {
     return {
       "Id": id,
       "Ingredient": ingredient?.toJson(),
       "Amount": amount,
-      "Unit": unit.index,
+      "EstimatedCost": estimatedCost,
     };
   }
 
   IngredientEntry.fromJson(Map<String, dynamic> json) {
     id = json["Id"];
     ingredient = Ingredient.fromJson(json["Ingredient"]);
-    amount = json["Amount"];
-    unit = Unit.values[json["Unit"]];
+    amount = json["Amount"] is int ? (json["Amount"] as int).toDouble() : json["Amount"];
+    estimatedCost = json["EstimatedCost"];
+  }
+
+  int getEstimatedCost() {
+    if (ingredient == null) return 0;
+    return ((ingredient!.cost * amount) / ingredient!.amount).ceil();
   }
 }
 
@@ -89,10 +106,11 @@ enum Unit {
 class Ingredient {
   String? id;
   String? name;
-  double cost = 0;
+  int cost = 0;
   double amount = 0;
   Unit unit = Unit.gramm;
   String? assemblyId;
+  bool archived = false;
 
   Ingredient();
 
@@ -106,15 +124,17 @@ class Ingredient {
       "Assembly": {
         "Id": assemblyId,
       },
+      "Archived": archived,
     };
   }
 
   Ingredient.fromJson(Map<String, dynamic> json) {
     id = json["Id"];
-    name = json["Name"];
-    cost = json["Cost"];
-    amount = json["Amount"];
-    unit = Unit.values[json["Unit"]];
-    assemblyId = json["Assembly"]["Id"];
+    if(json["Name"] != null) name = json["Name"];
+    if(json["Cost"] != null) cost = json["Cost"];
+    if (json["Amount"] != null) amount = json["Amount"] is int ? (json["Amount"] as int).toDouble() : json["Amount"];
+    if(json["Unit"] != null) unit = Unit.values[json["Unit"]];
+    if(json["Assembly"] != null) assemblyId = json["Assembly"]["Id"];
+    if(json["Archived"] != null) archived = json["Archived"];
   }
 }

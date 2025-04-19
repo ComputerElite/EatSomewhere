@@ -30,7 +30,7 @@ class _ScreenSelectorState extends State<ScreenSelector> {
     ];
     navigationBarItems = [
       BottomNavigationBarItem(icon: Icon(Icons.local_pizza), label: 'Food'),
-      BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Fake Settings'),
+      BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
     ];
     floatingActionButtons = <Widget?>[
       FloatingActionButton(onPressed: () {

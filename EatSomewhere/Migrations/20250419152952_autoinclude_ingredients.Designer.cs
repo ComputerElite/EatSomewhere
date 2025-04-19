@@ -3,6 +3,7 @@ using System;
 using EatSomewhere.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EatSomewhere.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250419152952_autoinclude_ingredients")]
+    partial class autoinclude_ingredients
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.1");
@@ -207,7 +210,6 @@ namespace EatSomewhere.Migrations
                         .HasColumnType("REAL");
 
                     b.Property<string>("IngredientId")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -307,13 +309,13 @@ namespace EatSomewhere.Migrations
 
             modelBuilder.Entity("FoodIngredientEntry", b =>
                 {
-                    b.Property<string>("FoodsId")
+                    b.Property<string>("FoodId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("IngredientsId")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("FoodsId", "IngredientsId");
+                    b.HasKey("FoodId", "IngredientsId");
 
                     b.HasIndex("IngredientsId");
 
@@ -432,10 +434,8 @@ namespace EatSomewhere.Migrations
             modelBuilder.Entity("EatSomewhere.Data.IngredientEntry", b =>
                 {
                     b.HasOne("EatSomewhere.Data.Ingredient", "Ingredient")
-                        .WithMany("IngredientEntries")
-                        .HasForeignKey("IngredientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany()
+                        .HasForeignKey("IngredientId");
 
                     b.Navigation("Ingredient");
                 });
@@ -470,7 +470,7 @@ namespace EatSomewhere.Migrations
                 {
                     b.HasOne("EatSomewhere.Data.Food", null)
                         .WithMany()
-                        .HasForeignKey("FoodsId")
+                        .HasForeignKey("FoodId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -501,11 +501,6 @@ namespace EatSomewhere.Migrations
                     b.Navigation("Foods");
 
                     b.Navigation("Ingredients");
-                });
-
-            modelBuilder.Entity("EatSomewhere.Data.Ingredient", b =>
-                {
-                    b.Navigation("IngredientEntries");
                 });
 
             modelBuilder.Entity("EatSomewhere.Users.User", b =>

@@ -1,6 +1,8 @@
 import 'package:eat_somewhere/data/food.dart';
 import 'package:eat_somewhere/main.dart';
 import 'package:eat_somewhere/screens/create_food.dart';
+import 'package:eat_somewhere/screens/food_widget.dart';
+import 'package:eat_somewhere/service/storage.dart';
 import 'package:flutter/material.dart';
 
 class FoodScreen extends StatefulWidget {
@@ -13,7 +15,9 @@ class FoodScreen extends StatefulWidget {
     Navigator.push(
       navigatorKey.currentContext!,
       MaterialPageRoute(
-        builder: (context) => CreateFoodScreen(food: Food(),),
+        builder: (context) => CreateFoodScreen(
+          food: Food(),
+        ),
       ),
     );
   }
@@ -23,12 +27,12 @@ class _FoodScreenState extends State<FoodScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Food Screen'),
-      ),
-      body: Center(
-        child: Text('This is the food screen'),
-      ),
-    );
+        appBar: AppBar(
+          title: const Text('Food Screen'),
+        ),
+        body: ListView(
+            children: Storage.getFoodsForCurrentAssembly()
+                .map<Widget>((x) => FoodWidget(food: x,))
+                .toList()));
   }
 }

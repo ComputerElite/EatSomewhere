@@ -6,3 +6,8 @@ public class ApiResponse
     public string? Error { get; set; }
     public bool Success { get; set; } = false;
 }
+
+public class ApiResponse<T> : ApiResponse
+{
+    public T? Data { get; set; }
+}

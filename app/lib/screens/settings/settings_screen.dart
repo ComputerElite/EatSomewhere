@@ -134,7 +134,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Assembly a = Assembly(id: null, name: name, description: description, users: [], pending: [], admins: []);
           String? error = await ServerLoader.createAssembly(a);
           if(error != null) {
-            ErrorDialog.showErrorDialog(context, "Failed to create assembly", error);
+            ErrorDialog.showErrorDialog("Failed to create assembly", error);
             return;
           }
           await Storage.reloadAssemblies();

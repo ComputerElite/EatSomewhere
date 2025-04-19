@@ -1,8 +1,9 @@
 import 'dart:convert';
 
 import 'package:eat_somewhere/backend_data/assembly.dart';
-import 'package:eat_somewhere/backend_data/ingredient.dart';
+import 'package:eat_somewhere/data/food.dart';
 import 'package:eat_somewhere/service/server_loader.dart';
+import 'package:flutter/gestures.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/settings.dart';
@@ -14,7 +15,7 @@ class Storage {
   Settings settings = Settings();
   List<Assembly> ownAssemblies = [];
   List<Ingredient> ingredients = [];
-
+  List<Food> foods = [];
   static Future saveUser(User? user) async {
     instance.user = user;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -42,7 +43,9 @@ class Storage {
 
     final String? ownAssembliesJson = prefs.getString('ownAssemblies');
     if (ownAssembliesJson != null) {
-      instance.ownAssemblies = (jsonDecode(ownAssembliesJson) as List<dynamic>).map((e) => Assembly.fromJson(e)).toList();
+      instance.ownAssemblies = (jsonDecode(ownAssembliesJson) as List<dynamic>)
+          .map((e) => Assembly.fromJson(e))
+          .toList();
     }
   }
 
@@ -79,6 +82,7 @@ class Storage {
       return;
     }
     await reloadAssemblies();
+    await reloadFoods();
     await reloadIngredients();
   }
 
@@ -92,5 +96,63 @@ class Storage {
 
   static Future reloadIngredients() async {
     instance.ingredients = await ServerLoader.LoadIngredients();
+  }
+
+  static Future reloadFoods() async {
+    instance.foods = await ServerLoader.LoadFoods();
+  }
+
+  static getIngredientsForCurrentAssembly() {
+    return instance.ingredients
+        .where((element) => element.assemblyId == getSettings().chosenAssembly)
+        .toList();
+  }
+  static getFoodsForCurrentAssembly() {
+    return instance.foods
+        .where((element) => element.assemblyId == getSettings().chosenAssembly)
+        .toList();
+  }
+
+  static Future<String?> updateIngredient(Ingredient ingredient) async {
+    // If ingredient is new, add it to the list, else update it. with server request
+    ingredient.assemblyId = getSettings().chosenAssembly;
+
+    ErrorContainer<CreatedResponse> serverResponse =
+        await ServerLoader.postIngredient(ingredient);
+    if (serverResponse.error != null) {
+      return serverResponse.error;
+    }
+    Storage.instance.ingredients.removeWhere((x) => x.id == ingredient.id);
+    Storage.instance.ingredients.add(Ingredient.fromJson(serverResponse.value!.data!));
+    Storage.saveIngredients();
+    return null;
+  }
+
+  static void saveIngredients() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('ingredients',
+        jsonEncode(instance.ingredients.map((x) => x.toJson()).toList()));
+  }
+
+  static Future<String?> updateFood(Food food) async {
+    // If ingredient is new, add it to the list, else update it. with server request
+    food.assemblyId = getSettings().chosenAssembly;
+
+    ErrorContainer<CreatedResponse> serverResponse =
+        await ServerLoader.postFood(food);
+    if (serverResponse.error != null) {
+      return serverResponse.error;
+    }
+    // The old food was archived, therefore we need to remove it
+    Storage.instance.foods.removeWhere((x) => x.id == food.id);
+    Storage.instance.foods.add(Food.fromJson(serverResponse.value!.data!));
+    Storage.saveFoods();
+    return null;
+  }
+
+  static void saveFoods() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(
+        'foods', jsonEncode(instance.foods.map((x) => x.toJson()).toList()));
   }
 }
