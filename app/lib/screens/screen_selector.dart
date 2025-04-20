@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:eat_somewhere/screens/dashboard_screen.dart';
 import 'package:eat_somewhere/screens/food_entry_screen.dart';
 import 'package:eat_somewhere/screens/food_screen.dart';
 import 'package:eat_somewhere/service/keyboard_callbacks.dart';
@@ -26,16 +27,19 @@ class _ScreenSelectorState extends State<ScreenSelector> {
   @override
   void initState() {
     screens = [
+      DashboardScreen(),
       FoodEntryScreen(),
       FoodScreen(),
       SettingsScreen(),
     ];
     navigationBarItems = [
+      BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
       BottomNavigationBarItem(icon: Icon(Icons.food_bank), label: 'FoodEntries'),
       BottomNavigationBarItem(icon: Icon(Icons.local_pizza), label: 'Food'),
       BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
     ];
     floatingActionButtons = <Widget?>[
+      null,
       FloatingActionButton(onPressed: () {
         FoodEntryScreen.CreateFoodEntry();
       }, child: Icon(Icons.add), tooltip: "Create food entry"),

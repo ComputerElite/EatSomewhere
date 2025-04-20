@@ -15,8 +15,8 @@ public class Assembly
     public string Name { get; set; }
     public string Description { get; set; }
     public List<User> Admins { get; set; }= new();
-    [JsonIgnore] public List<Food> Foods { get; set; } = new();
-    [JsonIgnore] public List<FoodEntry> FoodEntries { get; set; }
+    [JsonIgnore] public IEnumerable<Food> Foods { get; set; }
+    [JsonIgnore] public IEnumerable<FoodEntry> FoodEntries { get; set; }
 
-    [JsonIgnore] public List<Ingredient> Ingredients = new();
+    [JsonIgnore] public IEnumerable<Ingredient> Ingredients { get; set; }
 }

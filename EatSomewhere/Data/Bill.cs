@@ -4,15 +4,19 @@ using EatSomewhere.Users;
 
 namespace EatSomewhere.Data;
 
-public class FoodParticipant
+public class Bill
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public string Id { get; set; }
+    public string? Id { get; set; }
+    /// <summary>
+    /// Person which ows money
+    /// </summary>
     public User? User { get; set; }
-    public int AdditionalPersons { get; set; }
+    /// <summary>
+    /// The person which receives the money
+    /// </summary>
+    public User Recipient { get; set; }
     [JsonIgnore]
     public FoodEntry FoodEntry { get; set; }
-    [NotMapped]
-    [JsonIgnore]
-    public int Persons => AdditionalPersons + 1;
+    public int Amount { get; set; }
 }

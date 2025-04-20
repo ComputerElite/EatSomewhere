@@ -3,6 +3,7 @@ using System;
 using EatSomewhere.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EatSomewhere.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250420182114_bills_2")]
+    partial class bills_2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.1");
@@ -91,7 +94,6 @@ namespace EatSomewhere.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("FoodEntryId")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("RecipientId")
@@ -424,9 +426,7 @@ namespace EatSomewhere.Migrations
                 {
                     b.HasOne("EatSomewhere.Data.FoodEntry", "FoodEntry")
                         .WithMany("Bills")
-                        .HasForeignKey("FoodEntryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FoodEntryId");
 
                     b.HasOne("EatSomewhere.Users.User", "Recipient")
                         .WithMany("ReceivedBills")

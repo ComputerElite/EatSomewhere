@@ -146,7 +146,7 @@ class _CreateFoodScreenState extends State<CreateFoodScreen> {
                   setState(() {});
                 },
                 icon: Icon(Icons.add)),
-                Text("Total cost: ~ ${PriceHelper.formatPriceWithUnit(widget.food.ingredients.map((x) => x.getEstimatedCost()).reduce((value, element) => value + element))}"),
+                Text("Total cost: ~ ${PriceHelper.formatPriceWithUnit(widget.food.getEstimatedCost())}"),
             TextField(
               decoration: InputDecoration(
                 labelText: "Recipe",

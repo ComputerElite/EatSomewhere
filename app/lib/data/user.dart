@@ -3,13 +3,16 @@ class User {
   String session;
   String server;
 
-  User({required this.name, required this.session, required this.server});
+  String? userId;
+
+  User({required this.name, required this.session, required this.server, this.userId});
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       name: json['name'],
       session: json['session'],
-      server: json['server']
+      server: json['server'],
+      userId: json['userId'],
     );
   }
 
@@ -17,7 +20,8 @@ class User {
     return {
       'name': name,
       'session': session,
-      'server': server
+      'server': server,
+      'userId': userId
     };
   }
 }

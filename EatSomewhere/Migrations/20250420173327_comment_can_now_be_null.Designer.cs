@@ -3,6 +3,7 @@ using System;
 using EatSomewhere.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EatSomewhere.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250420173327_comment_can_now_be_null")]
+    partial class comment_can_now_be_null
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.1");
@@ -79,37 +82,6 @@ namespace EatSomewhere.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Assemblies");
-                });
-
-            modelBuilder.Entity("EatSomewhere.Data.Bill", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Amount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("FoodEntryId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("RecipientId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FoodEntryId");
-
-                    b.HasIndex("RecipientId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Bills");
                 });
 
             modelBuilder.Entity("EatSomewhere.Data.Food", b =>
@@ -420,31 +392,6 @@ namespace EatSomewhere.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("EatSomewhere.Data.Bill", b =>
-                {
-                    b.HasOne("EatSomewhere.Data.FoodEntry", "FoodEntry")
-                        .WithMany("Bills")
-                        .HasForeignKey("FoodEntryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EatSomewhere.Users.User", "Recipient")
-                        .WithMany("ReceivedBills")
-                        .HasForeignKey("RecipientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EatSomewhere.Users.User", "User")
-                        .WithMany("Bills")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("FoodEntry");
-
-                    b.Navigation("Recipient");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("EatSomewhere.Data.Food", b =>
                 {
                     b.HasOne("EatSomewhere.Data.Assembly", "Assembly")
@@ -588,8 +535,6 @@ namespace EatSomewhere.Migrations
 
             modelBuilder.Entity("EatSomewhere.Data.FoodEntry", b =>
                 {
-                    b.Navigation("Bills");
-
                     b.Navigation("Participants");
                 });
 
@@ -600,11 +545,7 @@ namespace EatSomewhere.Migrations
 
             modelBuilder.Entity("EatSomewhere.Users.User", b =>
                 {
-                    b.Navigation("Bills");
-
                     b.Navigation("Intolerances");
-
-                    b.Navigation("ReceivedBills");
                 });
 #pragma warning restore 612, 618
         }

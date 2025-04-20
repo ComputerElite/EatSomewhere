@@ -1,6 +1,10 @@
 import 'dart:convert';
 
+import 'package:eat_somewhere/data/bill.dart';
 import 'package:eat_somewhere/data/food.dart';
+import 'package:eat_somewhere/data/foodentry.dart';
+import 'package:eat_somewhere/data/settings.dart';
+import 'package:eat_somewhere/service/storage.dart';
 
 import '../backend_data/assembly.dart';
 import 'package:http/http.dart' as http;
@@ -49,6 +53,14 @@ class ServerLoader {
     print(response.body);
     if (response.statusCode == 200) {
       return (jsonDecode(response.body) as List<dynamic>).map((e) => Food.fromJson(e)).toList();
+    }
+    return [];
+  }
+  static Future<List<FoodEntry>> LoadFoodEntries(int skip, int count) async {
+    var response = await ServerCom.get("/api/v1/foodentries/${Storage.getSettings().chosenAssembly}?skip=$skip&count=$count");
+    print(response.body);
+    if (response.statusCode == 200) {
+      return (jsonDecode(response.body) as List<dynamic>).map((e) => FoodEntry.fromJson(e)).toList();
     }
     return [];
   }
@@ -119,6 +131,25 @@ class ServerLoader {
     } else {
       return ErrorContainer(null, "Error: ${response.statusCode} ${response.body}");
     }
+  }
+
+  static Future<ErrorContainer<CreatedResponse>> postFoodEntry(FoodEntry foodEntry) async {
+    var response = await ServerCom.post("/api/v1/foodentry", jsonEncode(foodEntry.toJson()));
+    print(response.body);
+    if (response.statusCode == 200) {
+      return ErrorContainer(CreatedResponse.fromJson(jsonDecode(response.body)), null);
+    } else {
+      return ErrorContainer(null, "Error: ${response.statusCode} ${response.body}");
+    }
+  }
+
+  static Future<List<Bill>> LoadBills() async {
+    var response = await ServerCom.get("/api/v1/bills/${Storage.getSettings().chosenAssembly}");
+    print(response.body);
+    if (response.statusCode == 200) {
+      return (jsonDecode(response.body) as List<dynamic>).map((e) => Bill.fromJson(e)).toList();
+    }
+    return [];
   }
 }
 

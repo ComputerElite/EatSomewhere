@@ -13,6 +13,7 @@ public class AppDbContext : DbContext
     public DbSet<IngredientEntry> IngredientEntries { get; set; }
     public DbSet<Food> Foods { get; set; }
     public DbSet<FoodEntry> FoodEntries { get; set; }
+    public DbSet<Bill> Bills { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -36,6 +37,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Assembly>().HasMany(x => x.Pending).WithMany();
         modelBuilder.Entity<Assembly>().HasMany(x => x.Ingredients).WithOne(x => x.Assembly);
         modelBuilder.Entity<Assembly>().HasMany(x => x.Foods).WithOne(x => x.Assembly);
+        modelBuilder.Entity<Assembly>().HasMany(x => x.FoodEntries).WithOne(x => x.Assembly);
         
         modelBuilder.Entity<Food>().HasKey(x => x.Id);
         modelBuilder.Entity<Food>().Navigation(x => x.CreatedBy).AutoInclude();
@@ -48,7 +50,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<FoodEntry>().HasKey(x => x.Id);
         modelBuilder.Entity<FoodEntry>().Navigation(x => x.Food).AutoInclude();
         modelBuilder.Entity<FoodEntry>().Navigation(x => x.Participants).AutoInclude();
-        modelBuilder.Entity<FoodEntry>().HasMany(x => x.Participants).WithMany();
+        modelBuilder.Entity<FoodEntry>().HasMany(x => x.Participants).WithOne(x => x.FoodEntry);
         modelBuilder.Entity<FoodEntry>().Navigation(x => x.PayedBy).AutoInclude();
         modelBuilder.Entity<FoodEntry>().Navigation(x => x.CreatedBy).AutoInclude();
         modelBuilder.Entity<FoodEntry>().HasOne(x => x.Assembly).WithMany(x => x.FoodEntries);
@@ -62,6 +64,10 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<IngredientEntry>().HasKey(x => x.Id);
         modelBuilder.Entity<IngredientEntry>().Navigation(x => x.Ingredient).AutoInclude();
         modelBuilder.Entity<IngredientEntry>().HasOne(x => x.Ingredient).WithMany(x=> x.IngredientEntries);
+
+        modelBuilder.Entity<Bill>().HasOne(x => x.Recipient).WithMany(x => x.ReceivedBills);
+        modelBuilder.Entity<Bill>().HasOne(x => x.User).WithMany(x => x.Bills);
+        modelBuilder.Entity<Bill>().HasOne(x => x.FoodEntry).WithMany(x => x.Bills);
         
         modelBuilder.Entity<Tag>().HasKey(x => x.Id);
     }

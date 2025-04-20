@@ -42,6 +42,11 @@ class Food {
   int getCostPerPerson() {
     return (estimatedCost / personCount).ceil();
   }
+
+  int getEstimatedCost() {
+    if(ingredients.isEmpty) return 0;
+    return ingredients.map((x) => x.getEstimatedCost()).reduce((value, element) => value + element);
+  }
 }
 
 class Tag {

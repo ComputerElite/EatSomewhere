@@ -16,4 +16,9 @@ public class User
     [JsonIgnore]
     public bool TwoFactorEnabled { get; set; }
     public List<Ingredient> Intolerances { get; set; }
+    [JsonIgnore]
+    public IEnumerable<Bill>? Bills { get; set; }
+    [JsonIgnore]
+
+    public IEnumerable<Bill>? ReceivedBills { get; set; }
 }

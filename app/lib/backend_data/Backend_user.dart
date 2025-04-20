@@ -1,4 +1,5 @@
 import 'package:eat_somewhere/data/food.dart';
+import 'package:eat_somewhere/service/storage.dart';
 class BackendUser {
   String Id;
   String Username;
@@ -26,5 +27,9 @@ class BackendUser {
       'Username': Username,
       'Intolerances': Intolerances.map((e) => e.toJson()).toList(),
     };
+  }
+
+  bool isSelf() {
+    return Id == Storage.getUser()?.userId;
   }
 }

@@ -6,10 +6,12 @@ import 'package:flutter/material.dart';
 
 class FoodWidget extends StatefulWidget {
   Food food;
+  Function()? onTap;
 
   FoodWidget({
     Key? key,
     required this.food,
+    this.onTap,
   }) : super(key: key);
 
   @override
@@ -20,6 +22,7 @@ class _FoodWidgetState extends State<FoodWidget> {
   @override
   Widget build(BuildContext context) {
     return PaddedCard(
+      onTap: widget.onTap,
         child: Row(
       spacing: 10,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

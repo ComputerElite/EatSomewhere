@@ -15,9 +15,6 @@ public class FoodManager
         d.Attach(user);
         Assembly? assembly = d.Assemblies.Where(x => x.Id == assemblyId)
             .Include(x => x.Users)
-            .Include(x => x.FoodEntries)
-            .ThenInclude(x => x.Participants)
-            .ThenInclude(x => x.User)
             .FirstOrDefault();
         if (assembly == null)
         {
@@ -27,7 +24,9 @@ public class FoodManager
         {
             return new List<FoodEntry>();
         }
-        return assembly.FoodEntries
+        return d.FoodEntries.Where(x => x.Assembly.Id == assemblyId)
+            .Include(x => x.Participants)
+            .Include(x => x.Bills)
             .OrderByDescending(x => x.Date)
             .Skip(skip)
             .Take(count)
@@ -150,7 +149,10 @@ public class FoodManager
     {
         using var d = new AppDbContext();
         d.Attach(user);
-        Assembly? a = d.Assemblies.FirstOrDefault(x => x.Id == food.Assembly.Id);
+        Assembly? a = d.Assemblies.Where(x => x.Id == food.Assembly.Id)
+            .Include(x => x.Users)
+            .Include(x => x.Admins)
+            .FirstOrDefault();
         if (a == null)
         {
             return new ApiResponse<FoodEntry>
@@ -162,7 +164,9 @@ public class FoodManager
 
         foreach (FoodParticipant p in food.Participants)
         {
-            User? foundUser = a.Users.FirstOrDefault(x => x.Id == p.User.Id);
+            User? foundUser = a.Users.FirstOrDefault(x => x.Id == p.User?.Id);
+            if (p.AdditionalPersons < 0) p.AdditionalPersons = 0;
+            p.FoodEntry = food;
             if (foundUser == null)
             {
                 return new ApiResponse<FoodEntry>
@@ -196,9 +200,10 @@ public class FoodManager
         food.PayedBy = foundPayedBy;
         food.CreatedBy = user;
         food.Assembly = a;
+        food.Bills = food.CalculateBills();
         
         // Check if food already exists and if yes, update it instead of creating it
-        FoodEntry? existingEntry = d.FoodEntries.FirstOrDefault(x => x.Id == food.Id);
+        FoodEntry? existingEntry = d.FoodEntries.Where(x => x.Id == food.Id).Include(x => x.Bills).FirstOrDefault();
         if (existingEntry != null)
         {
             if (existingEntry.CreatedBy.Id != user.Id && !CanAdministrateAssembly(user, a))
@@ -209,6 +214,12 @@ public class FoodManager
                     Error = "You are not allowed to edit this food"
                 };
             }
+            // Remove all previous bills
+            foreach (Bill bill in existingEntry.Bills)
+            {
+                d.Remove(bill);
+            }
+            existingEntry.Bills.Clear();
             // Replace existing database entry with new one
             existingEntry.Date = food.Date;
             existingEntry.Comment = food.Comment;
@@ -218,11 +229,16 @@ public class FoodManager
             existingEntry.PayedBy = food.PayedBy;
             existingEntry.Assembly = food.Assembly;
             existingEntry.CreatedBy = food.CreatedBy;
+            existingEntry.Bills = food.Bills;
         }
         else
         {
             d.FoodEntries.Add(food);
         }
+        
+        // All previous Bills are invalid now
+        
+        
 
         d.SaveChanges();
 

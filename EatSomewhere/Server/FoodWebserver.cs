@@ -1,8 +1,11 @@
 using System.Text.Json;
+using ComputerUtils.Logging;
 using ComputerUtils.Webserver;
 using EatSomewhere.Data;
+using EatSomewhere.Database;
 using EatSomewhere.Manager;
 using EatSomewhere.Users;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace EatSomewhere.Server;
@@ -65,6 +68,38 @@ public class FoodWebserver
     }
     public static void AddFoodRoutes(HttpServer server)
     {
+        /// Billing
+        server.AddRoute("GET", "/api/v1/bills/", request =>
+        {
+            request.allowAllOrigins = true;
+            User? user = UserManagementServer.GetUserBySession(request);
+            if (user == null)
+            {
+                ApiError.SendUnauthorized(request);
+                return true;
+            }
+            string id = request.pathDiff;
+            
+            using var d = new AppDbContext();
+            d.Attach(user);
+            Assembly? assembly = d.Assemblies.Include(x => x.Users).FirstOrDefault(x => x.Id == id);
+            if (assembly == null)
+            {
+                ApiError.SendNotFound(request);
+                return true;
+            }
+
+            List<Bill> bills = [];
+            foreach (User u in assembly.Users)
+            {
+                bills.AddRange(BillManager.GetTotalBills(u, id));
+            }
+            request.SendString(JsonSerializer.Serialize(bills), "application/json", 200);
+
+            //request.SendString(JsonSerializer.Serialize(BillManager.GetTotalBills(user, id)), "application/json", 200);
+            return true;
+        }, true);
+        
         ////// Food Entries //////
         /// DELETE archives food entries
         //api/v1/foodentries/<assemblyId>?skip=<int>&count=<int>
@@ -225,9 +260,10 @@ public class FoodWebserver
                     // ignored
                 }
             }
+            Logger.Log("Skip: " + skip + " Count: " + count+" Assembly: " + request.pathDiff);
             request.SendString(JsonSerializer.Serialize(listMethod(user, request.pathDiff, skip, count)), "application/json");
             return true;
-        });
+        }, true);
     }
 
     private static void RegisterListForType<T>(string apiPath, HttpServer server, Func<User, List<T>> listMethod)

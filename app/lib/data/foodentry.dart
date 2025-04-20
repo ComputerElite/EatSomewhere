@@ -1,4 +1,5 @@
 import 'package:eat_somewhere/backend_data/Backend_user.dart';
+import 'package:eat_somewhere/data/bill.dart';
 import 'package:eat_somewhere/data/food.dart';
 
 class FoodEntry {
@@ -11,6 +12,7 @@ class FoodEntry {
   int costPerPerson = 0;
   int personCount = 1;
   List<FoodParticipant> participants = [];
+  List<Bill?> bills = [];
   BackendUser? payedBy;
   String? assemblyId;
 
@@ -20,10 +22,11 @@ class FoodEntry {
 
   int getEstimatedCost() {
     if (food == null) return 0;
-    return (food!.estimatedCost / personCount).ceil();
+    return food!.getCostPerPerson() * getPersonCount();
   }
 
-  fromJson(Map<String, dynamic> json) {
+  FoodEntry.fromJson(Map<String, dynamic> json) {
+
     id = json["Id"];
     assemblyId = json["Assembly"]["Id"];
     date = DateTime.parse(json["Date"]);
@@ -32,15 +35,23 @@ class FoodEntry {
     cost = json["Cost"];
     costPerPerson = json["CostPerPerson"];
     personCount = json["PersonCount"];
+    bills = (json["Bills"] as List<dynamic>)
+        .map((e) => Bill.fromJson(e))
+        .toList();
+    if(bills == null) {
+      bills = [];
+    }
     participants = (json["Participants"] as List<dynamic>)
-        .map((e) => FoodParticipant()..fromJson(e))
+        .map((e) => FoodParticipant.fromJson(e))
         .toList();
     payedBy = BackendUser.fromJson(json["PayedBy"]);
   }
 
+  FoodEntry();
+
   toJson() {
     return {
-      "Assemby": {
+      "Assembly": {
         "Id": assemblyId,
       },
       "Id": id,
@@ -51,6 +62,14 @@ class FoodEntry {
       "Participants": participants.map((e) => e.toJson()).toList(),
       "PayedBy": payedBy?.toJson(),
     };
+  }
+
+  int getCostPerPerson() {
+    if (cost == 0) {
+      return 0;
+    }
+    if(getPersonCount() == 0) return 0;
+    return (cost / getPersonCount()).ceil();
   }
 }
 
@@ -63,7 +82,7 @@ class FoodParticipant {
     return additionalPersons + 1;
   }
 
-  fromJson(Map<String, dynamic> json) {
+  FoodParticipant.fromJson(Map<String, dynamic> json) {
     id = json["Id"];
     user = BackendUser.fromJson(json["User"]);
     additionalPersons = json["AdditionalPersons"];
@@ -75,5 +94,10 @@ class FoodParticipant {
       "User": user?.toJson(),
       "AdditionalPersons": additionalPersons,
     };
+  }
+
+  FoodParticipant.fromUser(BackendUser backendUser) {
+    user = backendUser;
+    additionalPersons = 0;
   }
 }

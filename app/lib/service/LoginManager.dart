@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:eat_somewhere/backend_data/Backend_user.dart';
 import 'package:eat_somewhere/backend_data/backend_login_response.dart';
 
 import '../data/user.dart';
@@ -23,7 +24,12 @@ class LoginManager {
       if(!loginResponse.Success) {
         return LoginResult(error: loginResponse.Error);
       }
-      return LoginResult(user: User(name: username, session: loginResponse.SessionId!, server: server));
+      http.Response userResponse = await http.get(Uri.parse("$server/api/v1/user/me"), headers: {"Authorization": "Bearer ${loginResponse.SessionId}"});
+      if(userResponse.statusCode != 200) {
+        return LoginResult(error: "Server returned ${userResponse.statusCode}");
+      }
+      BackendUser user = BackendUser.fromJson(jsonDecode(userResponse.body));
+      return LoginResult(user: User(name: username, userId: user.Id, session: loginResponse.SessionId!, server: server));
     } catch (e) {
       return LoginResult(error: "Server returned ${response.statusCode}");
     }
