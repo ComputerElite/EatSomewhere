@@ -50,6 +50,8 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<FoodEntry>().Navigation(x => x.Participants).AutoInclude();
         modelBuilder.Entity<FoodEntry>().HasMany(x => x.Participants).WithMany();
         modelBuilder.Entity<FoodEntry>().Navigation(x => x.PayedBy).AutoInclude();
+        modelBuilder.Entity<FoodEntry>().Navigation(x => x.CreatedBy).AutoInclude();
+        modelBuilder.Entity<FoodEntry>().HasOne(x => x.Assembly).WithMany(x => x.FoodEntries);
         
         modelBuilder.Entity<FoodParticipant>().HasKey(x => x.Id);
         

@@ -16,5 +16,7 @@ public class Assembly
     public string Description { get; set; }
     public List<User> Admins { get; set; }= new();
     [JsonIgnore] public List<Food> Foods { get; set; } = new();
+    [JsonIgnore] public List<FoodEntry> FoodEntries { get; set; }
+
     [JsonIgnore] public List<Ingredient> Ingredients = new();
 }

@@ -65,7 +65,11 @@ public class FoodWebserver
     }
     public static void AddFoodRoutes(HttpServer server)
     {
-        
+        ////// Food Entries //////
+        /// DELETE archives food entries
+        //api/v1/foodentries/<assemblyId>?skip=<int>&count=<int>
+        RegisterPagedListForType("/api/v1/foodentries/", server, FoodManager.GetFoodEntries);
+        RegisterRESTForType("/api/v1/foodentry/", server, FoodManager.GetFoodEntry, FoodManager.CreateFoodEntry, FoodManager.DeleteFoodEntry);
         
         ////// Food //////
         /// DELETE archives food
@@ -184,6 +188,46 @@ public class FoodWebserver
     private static void SendResponse(ServerRequest request, ApiResponse response)
     {
         request.SendString(JsonSerializer.Serialize(response), "application/json", response.Success ? 200 : 400);
+    }
+    
+    private static void RegisterPagedListForType<T>(string apiPath, HttpServer server, Func<User, string, int, int, List<T>> listMethod)
+    {        
+        server.AddRoute("GET", apiPath, request =>
+        {
+            request.allowAllOrigins = true;
+            User? user = UserManagementServer.GetUserBySession(request);
+            if (user == null)
+            {
+                ApiError.SendUnauthorized(request);
+                return true;
+            }
+            int skip = 0;
+            int count = 0;
+            if(request.queryString.Get("skip") != null)
+            {
+                try
+                {
+                    skip = int.Parse(request.queryString.Get("skip") ?? string.Empty);
+                }
+                catch
+                {
+                    // ignored
+                }
+            }
+            if(request.queryString.Get("count") != null)
+            {
+                try
+                {
+                    count = int.Parse(request.queryString.Get("count") ?? string.Empty);
+                }
+                catch
+                {
+                    // ignored
+                }
+            }
+            request.SendString(JsonSerializer.Serialize(listMethod(user, request.pathDiff, skip, count)), "application/json");
+            return true;
+        });
     }
 
     private static void RegisterListForType<T>(string apiPath, HttpServer server, Func<User, List<T>> listMethod)

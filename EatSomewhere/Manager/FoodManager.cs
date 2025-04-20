@@ -9,6 +9,30 @@ namespace EatSomewhere.Manager;
 
 public class FoodManager
 {
+    public static List<FoodEntry> GetFoodEntries(User user, string assemblyId, int skip, int count)
+    {
+        using var d = new AppDbContext();
+        d.Attach(user);
+        Assembly? assembly = d.Assemblies.Where(x => x.Id == assemblyId)
+            .Include(x => x.Users)
+            .Include(x => x.FoodEntries)
+            .ThenInclude(x => x.Participants)
+            .ThenInclude(x => x.User)
+            .FirstOrDefault();
+        if (assembly == null)
+        {
+            return new List<FoodEntry>();
+        }
+        if (!assembly.Users.Contains(user))
+        {
+            return new List<FoodEntry>();
+        }
+        return assembly.FoodEntries
+            .OrderByDescending(x => x.Date)
+            .Skip(skip)
+            .Take(count)
+            .ToList();
+    }
     public static List<Ingredient> GetIngredients(User user)
     {
         using var d = new AppDbContext();
@@ -121,6 +145,94 @@ public class FoodManager
             Data = food
         };
     }
+    
+    public static ApiResponse<FoodEntry> CreateFoodEntry(User user, FoodEntry food)
+    {
+        using var d = new AppDbContext();
+        d.Attach(user);
+        Assembly? a = d.Assemblies.FirstOrDefault(x => x.Id == food.Assembly.Id);
+        if (a == null)
+        {
+            return new ApiResponse<FoodEntry>
+            {
+                Success = false,
+                Error = "Assembly not found"
+            };
+        }
+
+        foreach (FoodParticipant p in food.Participants)
+        {
+            User? foundUser = a.Users.FirstOrDefault(x => x.Id == p.User.Id);
+            if (foundUser == null)
+            {
+                return new ApiResponse<FoodEntry>
+                {
+                    Success = false,
+                    Error = "Participant user not found"
+                };
+            }
+            p.User = foundUser;
+        }
+
+        Food? foundFood = d.Foods.FirstOrDefault(x => x.Id == food.Food.Id);
+        if (foundFood == null)
+        {
+            return new ApiResponse<FoodEntry>
+            {
+                Success = false,
+                Error = "Food not found"
+            };
+        }
+        food.Food = foundFood;
+        User? foundPayedBy = a.Users.FirstOrDefault(x => x.Id == food.PayedBy.Id);
+        if (foundPayedBy == null)
+        {
+            return new ApiResponse<FoodEntry>
+            {
+                Success = false,
+                Error = "PayedBy user not found"
+            };
+        }
+        food.PayedBy = foundPayedBy;
+        food.CreatedBy = user;
+        food.Assembly = a;
+        
+        // Check if food already exists and if yes, update it instead of creating it
+        FoodEntry? existingEntry = d.FoodEntries.FirstOrDefault(x => x.Id == food.Id);
+        if (existingEntry != null)
+        {
+            if (existingEntry.CreatedBy.Id != user.Id && !CanAdministrateAssembly(user, a))
+            {
+                return new ApiResponse<FoodEntry>
+                {
+                    Success = false,
+                    Error = "You are not allowed to edit this food"
+                };
+            }
+            // Replace existing database entry with new one
+            existingEntry.Date = food.Date;
+            existingEntry.Comment = food.Comment;
+            existingEntry.Food = food.Food;
+            existingEntry.Cost = food.Cost;
+            existingEntry.Participants = food.Participants;
+            existingEntry.PayedBy = food.PayedBy;
+            existingEntry.Assembly = food.Assembly;
+            existingEntry.CreatedBy = food.CreatedBy;
+        }
+        else
+        {
+            d.FoodEntries.Add(food);
+        }
+
+        d.SaveChanges();
+
+        return new ApiResponse<FoodEntry>
+        {
+            CreatedId = food.Id,
+            Success = true,
+            Data = food
+        };
+    }
 
     public static ApiResponse<Ingredient> CreateIngredient(User user, Ingredient ingredient)
     {
@@ -217,7 +329,7 @@ public class FoodManager
     public static ApiResponse DeleteIngredient(User user, string id)
     {
         using var d = new AppDbContext();
-        var ingredient = d.Ingredients.FirstOrDefault(a => a.Id == id);
+        var ingredient = d.Ingredients.Where(a => a.Id == id).Include(x => x.Assembly).FirstOrDefault();
         if (ingredient == null)
         {
             return new ApiResponse
@@ -236,6 +348,38 @@ public class FoodManager
             };
         }
         ingredient.Archived = true;
+        
+        d.SaveChanges();
+        
+        return new ApiResponse
+        {
+            Success = true
+        };
+    }
+    
+    public static ApiResponse DeleteFoodEntry(User user, string id)
+    {
+        using var d = new AppDbContext();
+        var foodEntry = d.FoodEntries.Where(a => a.Id == id).Include(x => x.Assembly).FirstOrDefault();
+        if (foodEntry == null)
+        {
+            return new ApiResponse
+            {
+                Success = false,
+                Error = "FoodEntry not found"
+            };
+        }
+        
+        if (!CanAdministrateAssembly(user, foodEntry.Assembly))
+        {
+            return new ApiResponse
+            {
+                Success = false,
+                Error = "User is not an admin of this assembly"
+            };
+        }
+
+        d.Remove(foodEntry);
         
         d.SaveChanges();
         
@@ -392,11 +536,19 @@ public class FoodManager
         using var d = new AppDbContext();
         return d.Foods.FirstOrDefault(a => a.Id == id && a.Assembly.Users.Contains(user));
     }
+    public static FoodEntry? GetFoodEntry(User user, string id)
+    {
+        using var d = new AppDbContext();
+        return d.FoodEntries.Where(a => a.Id == id && a.Assembly.Users.Contains(user))
+            .Include(x => x.Participants)
+            .ThenInclude(x => x.User)
+            .FirstOrDefault();
+    }
 
     public static ApiResponse DeleteFood(User user, string id)
     {
         using var d = new AppDbContext();
-        var food = d.Foods.FirstOrDefault(a => a.Id == id);
+        var food = d.Foods.Where(a => a.Id == id).Include(x => x.Assembly).FirstOrDefault();
         if (food == null)
         {
             return new ApiResponse
@@ -429,7 +581,10 @@ public class FoodManager
     {
         using var d = new AppDbContext();
         d.Attach(user);
-        Assembly? assembly = GetAssembly(user, assemblyId);
+        Assembly? assembly = d.Assemblies.Where(x => x.Id == assemblyId)
+            .Include(x => x.Users)
+            .Include(x => x.Admins)
+            .FirstOrDefault();
         if (assembly == null)
         {
             return new ApiResponse<String>
@@ -439,14 +594,12 @@ public class FoodManager
             };
         }
 
-        d.Attach(assembly);
-        if (assembly.Admins.Contains(user))
+        if (!CanAdministrateAssembly(user, assembly))
         {
             return new ApiResponse<String>
             {
-                Success = true,
-                Error = "User is already an admin of this assembly",
-                Data = "User is already an admin of this assembly"
+                Success = false,
+                Error = "You cannot administrate this assembly!"
             };
         }
         User? foundUser = assembly.Users.FirstOrDefault(x => x.Id == userId);
@@ -456,6 +609,14 @@ public class FoodManager
             {
                 Success = false,
                 Error = "User not found in assembly"
+            };
+        }
+        if (assembly.Admins.Contains(foundUser))
+        {
+            return new ApiResponse<String>
+            {
+                Success = true,
+                Data = "User is already an admin of this assembly"
             };
         }
         assembly.Admins.Add(foundUser);

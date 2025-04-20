@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using EatSomewhere.Users;
 
 namespace EatSomewhere.Data;
@@ -18,4 +19,8 @@ public class FoodEntry
     public int PersonCount => Participants.Sum(x => x.AdditionalPersons + 1);
     public List<FoodParticipant> Participants { get; set; }
     public User PayedBy { get; set; }
+    [JsonIgnore]
+    public Assembly Assembly { get; set; }
+
+    public User CreatedBy { get; set; }
 }
