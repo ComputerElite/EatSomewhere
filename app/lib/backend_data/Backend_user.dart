@@ -3,7 +3,7 @@ import 'package:eat_somewhere/service/storage.dart';
 class BackendUser {
   String Id;
   String Username;
-  List<Ingredient> Intolerances;
+  List<Ingredient> Intolerances = [];
 
   BackendUser({
     required this.Id,
@@ -15,7 +15,7 @@ class BackendUser {
     return BackendUser(
       Id: json['Id'] as String,
       Username: json['Username'] as String,
-      Intolerances: (json['Intolerances'] as List<dynamic>)
+      Intolerances: ((json['Intolerances'] ?? []) as List<dynamic>)
           .map((e) => Ingredient.fromJson(e as Map<String, dynamic>))
           .toList(),
     );

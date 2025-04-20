@@ -153,6 +153,7 @@ class Storage {
     if (serverResponse.error != null) {
       return serverResponse.error;
     }
+    ingredient.id = serverResponse.value!.data!["Id"];
     Storage.instance.ingredients.removeWhere((x) => x.id == ingredient.id);
     Storage.instance.ingredients.add(Ingredient.fromJson(serverResponse.value!.data!));
     Storage.saveIngredients();
@@ -175,6 +176,7 @@ class Storage {
       return serverResponse.error;
     }
     // The old food was archived, therefore we need to remove it
+    food.id = serverResponse.value!.data!["Id"];
     Storage.instance.foods.removeWhere((x) => x.id == food.id);
     Storage.instance.foods.add(Food.fromJson(serverResponse.value!.data!));
     Storage.saveFoods();
