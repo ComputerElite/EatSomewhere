@@ -71,6 +71,8 @@ class FoodEntry {
     if(getPersonCount() == 0) return 0;
     return (cost / getPersonCount()).ceil();
   }
+
+  FoodEntry.fromFood(Food this.food);
 }
 
 class FoodParticipant {

@@ -14,12 +14,12 @@ public class User
     [JsonIgnore]
     public string Salt { get; set; }
     [JsonIgnore]
-    public bool TwoFactorEnabled { get; set; }
-    [JsonIgnore]
     public List<Ingredient> Intolerances { get; set; }
     [JsonIgnore]
     public IEnumerable<Bill>? Bills { get; set; }
     [JsonIgnore]
 
     public IEnumerable<Bill>? ReceivedBills { get; set; }
+    [JsonIgnore]
+    public IEnumerable<FoodEntry>? PayedFoodEntries { get; set; }
 }

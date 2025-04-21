@@ -123,7 +123,7 @@ class Storage {
       instance.foodEntries.removeWhere((x) => x.id == e.id);
       instance.foodEntries.add(e);
     }
-    instance.foodEntries.sort((x,y) => x.date.compareTo(y.date));
+    instance.foodEntries.sort((x,y) => y.date.compareTo(x.date));
     onDataReload();
   }
 
@@ -211,5 +211,18 @@ class Storage {
     return instance.ownAssemblies
         .firstWhere((element) => element.id == getSettings().chosenAssembly)
         .users;
+  }
+
+  static Future<String?> deleteFood(Food food) async {
+
+    ErrorContainer<bool?> serverResponse =
+        await ServerLoader.deleteFood(food);
+    if (serverResponse.error != null) {
+      return serverResponse.error;
+    }
+    // The old food was archived, therefore we need to remove it
+    Storage.instance.foods.removeWhere((x) => x.id == food.id);
+    Storage.saveFoods();
+    return null;
   }
 }

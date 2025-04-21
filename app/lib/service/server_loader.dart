@@ -151,6 +151,16 @@ class ServerLoader {
     }
     return [];
   }
+
+  static Future<ErrorContainer<bool?>> deleteFood(Food food) async {
+    var response = await ServerCom.delete("/api/v1/food/${food.id}");
+    print(response.body);
+    if (response.statusCode == 200) {
+      return ErrorContainer(jsonDecode(response.body)["Success"], null);
+    } else {
+      return ErrorContainer(null, "Error: ${response.statusCode} ${response.body}");
+    }
+  }
 }
 
 class CreatedResponse {

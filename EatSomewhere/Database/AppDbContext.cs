@@ -18,7 +18,7 @@ public class AppDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         Config.LoadConfig();
-        optionsBuilder.UseSqlite(Config.Instance.dbConnectionString == null ? "Data Source=" + AppDomain.CurrentDomain.BaseDirectory + "database.db" : Config.Instance.dbConnectionString);
+        optionsBuilder.UseNpgsql(Config.Instance?.dbConnectionString == null ? new Config().dbConnectionString : Config.Instance.dbConnectionString);
     }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -49,10 +49,13 @@ public class AppDbContext : DbContext
         
         modelBuilder.Entity<FoodEntry>().HasKey(x => x.Id);
         modelBuilder.Entity<FoodEntry>().Navigation(x => x.Food).AutoInclude();
+        modelBuilder.Entity<FoodEntry>().HasOne(x => x.Food).WithMany(x => x.FoodEntries);
         modelBuilder.Entity<FoodEntry>().Navigation(x => x.Participants).AutoInclude();
         modelBuilder.Entity<FoodEntry>().HasMany(x => x.Participants).WithOne(x => x.FoodEntry);
-        modelBuilder.Entity<FoodEntry>().Navigation(x => x.PayedBy).AutoInclude();
+        modelBuilder.Entity<FoodEntry>().HasOne(x => x.CreatedBy).WithMany();
         modelBuilder.Entity<FoodEntry>().Navigation(x => x.CreatedBy).AutoInclude();
+        modelBuilder.Entity<FoodEntry>().HasOne(x => x.PayedBy).WithMany(x => x.PayedFoodEntries);
+        modelBuilder.Entity<FoodEntry>().Navigation(x => x.PayedBy).AutoInclude();
         modelBuilder.Entity<FoodEntry>().HasOne(x => x.Assembly).WithMany(x => x.FoodEntries);
         
         modelBuilder.Entity<FoodParticipant>().HasKey(x => x.Id);

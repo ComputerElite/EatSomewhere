@@ -79,14 +79,17 @@ public class FoodWebserver
                 return true;
             }
             string id = request.pathDiff;
-            
-            using var d = new AppDbContext();
-            d.Attach(user);
-            Assembly? assembly = d.Assemblies.Include(x => x.Users).FirstOrDefault(x => x.Id == id);
-            if (assembly == null)
+
+            Assembly? assembly;
+            using (var d = new AppDbContext())
             {
-                ApiError.SendNotFound(request);
-                return true;
+                d.Attach(user);
+                    assembly = d.Assemblies.Include(x => x.Users).FirstOrDefault(x => x.Id == id);
+                    if (assembly == null)
+                    {
+                    ApiError.SendNotFound(request);
+                    return true;
+                }
             }
 
             List<Bill> bills = [];

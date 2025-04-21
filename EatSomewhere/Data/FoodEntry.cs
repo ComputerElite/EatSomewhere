@@ -18,7 +18,7 @@ public class FoodEntry
     
     public int PersonCount => Participants.Sum(x => x.Persons);
     public List<FoodParticipant> Participants { get; set; }
-    public User PayedBy { get; set; }
+    public User? PayedBy { get; set; }
     public Assembly Assembly { get; set; }
     public User CreatedBy { get; set; }
     public List<Bill> Bills { get; set; }
@@ -29,6 +29,7 @@ public class FoodEntry
         {
             User = x.User ?? null,
             Amount = CostPerPerson * x.Persons,
+            Persons = x.Persons,
             Recipient = PayedBy,
         }).ToList();
     }

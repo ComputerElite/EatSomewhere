@@ -24,13 +24,15 @@ class FoodScreen extends StatefulWidget {
 }
 
 class _FoodScreenState extends State<FoodScreen> {
-  @override void initState() {
+  @override
+  void initState() {
     // TODO: implement initState
     super.initState();
     Storage.onDataReload = () {
       setState(() {});
     };
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,7 +41,10 @@ class _FoodScreenState extends State<FoodScreen> {
         ),
         body: ListView(
             children: Storage.getFoodsForCurrentAssembly()
-                .map<Widget>((x) => FoodWidget(food: x,))
+                .map<Widget>((x) => FoodWidget(
+                      food: x,
+                      foodRemoved: () => setState(() {}),
+                    ))
                 .toList()));
   }
 }

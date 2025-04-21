@@ -7,7 +7,9 @@ public class Config
 {
 
     public static Config? Instance;
-    public string? dbConnectionString { get; set; }
+
+    public string? dbConnectionString { get; set; } =
+        "Server=127.0.0.1;Port=5432;Database=eatsomewhere;Username=eatsomewhere;Password=eatsomewhere;";
     public int port { get; set; } = 8383;
     private static readonly string _configPath = "config.json";
     public static void LoadConfig()

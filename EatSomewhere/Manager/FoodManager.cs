@@ -188,7 +188,7 @@ public class FoodManager
             };
         }
         food.Food = foundFood;
-        User? foundPayedBy = a.Users.FirstOrDefault(x => x.Id == food.PayedBy.Id);
+        User? foundPayedBy = a.Users.FirstOrDefault(x => x.Id == food.PayedBy?.Id);
         if (foundPayedBy == null)
         {
             return new ApiResponse<FoodEntry>
@@ -308,6 +308,7 @@ public class FoodManager
     public static ApiResponse DeleteAssembly(User user, string Id)
     {
         using var d = new AppDbContext();
+        d.Attach(user);
         var assembly = d.Assemblies.FirstOrDefault(a => a.Id == Id);
         if (assembly == null)
         {
@@ -345,7 +346,8 @@ public class FoodManager
     public static ApiResponse DeleteIngredient(User user, string id)
     {
         using var d = new AppDbContext();
-        var ingredient = d.Ingredients.Where(a => a.Id == id).Include(x => x.Assembly).FirstOrDefault();
+        d.Attach(user);
+        var ingredient = d.Ingredients.Where(a => a.Id == id).Include(x => x.Assembly).ThenInclude(x => x.Admins).FirstOrDefault();
         if (ingredient == null)
         {
             return new ApiResponse
@@ -376,7 +378,8 @@ public class FoodManager
     public static ApiResponse DeleteFoodEntry(User user, string id)
     {
         using var d = new AppDbContext();
-        var foodEntry = d.FoodEntries.Where(a => a.Id == id).Include(x => x.Assembly).FirstOrDefault();
+        d.Attach(user);
+        var foodEntry = d.FoodEntries.Where(a => a.Id == id).Include(x => x.Assembly).ThenInclude(x => x.Admins).FirstOrDefault();
         if (foodEntry == null)
         {
             return new ApiResponse
@@ -564,7 +567,8 @@ public class FoodManager
     public static ApiResponse DeleteFood(User user, string id)
     {
         using var d = new AppDbContext();
-        var food = d.Foods.Where(a => a.Id == id).Include(x => x.Assembly).FirstOrDefault();
+        d.Attach(user);
+        var food = d.Foods.Where(a => a.Id == id).Include(x => x.Assembly).ThenInclude(x => x.Admins).FirstOrDefault();
         if (food == null)
         {
             return new ApiResponse
@@ -574,7 +578,7 @@ public class FoodManager
             };
         }
         
-        if (!CanAdministrateAssembly(user, food.Assembly))
+        if (!CanAdministrateAssembly(user, food.Assembly) && food.CreatedBy.Id != user.Id)
         {
             return new ApiResponse
             {
@@ -589,7 +593,7 @@ public class FoodManager
 
         return new ApiResponse
         {
-            Success = true
+            Success = true,
         };
     }
 

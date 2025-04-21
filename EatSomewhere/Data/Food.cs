@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using EatSomewhere.Users;
 
 namespace EatSomewhere.Data;
@@ -24,4 +25,6 @@ public class Food
     }
     public string Recipe { get; set; }
     public bool Archived { get; set; } = false;
+    [JsonIgnore]
+    public IEnumerable<FoodEntry>? FoodEntries { get; set; }
 }

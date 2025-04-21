@@ -4,7 +4,12 @@ import 'package:eat_somewhere/data/foodentry.dart';
 import 'package:eat_somewhere/data/helper.dart';
 import 'package:eat_somewhere/screens/select_food.dart';
 import 'package:eat_somewhere/service/storage.dart';
+import 'package:eat_somewhere/widgets/chips/additional_persons_chip.dart';
+import 'package:eat_somewhere/widgets/chips/chip_combiner.dart';
+import 'package:eat_somewhere/widgets/chips/user_chip.dart';
 import 'package:eat_somewhere/widgets/error_dialog.dart';
+import 'package:eat_somewhere/widgets/chips/price_chip.dart';
+import 'package:eat_somewhere/widgets/chips/user_additional_person_chip.dart';
 import 'package:flutter/material.dart';
 
 class CreateFoodEntryScreen extends StatefulWidget {
@@ -119,44 +124,53 @@ class _CreateFoodEntryScreenState extends State<CreateFoodEntryScreen> {
             Text("Participants"),
             Table(
               children: [
-                ...widget.foodEntry.participants.map((participant) =>
-                    TableRow(children: [
-                      Text(participant.user?.Username ?? "Unknown"),
-                      Text("Extra persons: ${participant.additionalPersons}"),
-                      Row(
-                        children: [
+                ...widget.foodEntry.participants
+                    .map((participant) => TableRow(children: [
+                          ChipCombiner(chips: [
+                            UserChip(user: participant.user),
+                            AdditionalPersonsChip(
+                              additionalPersons: participant.additionalPersons,
+                              user: participant.user,
+                            ),
+                            PriceChip(
+                                amount: widget.foodEntry.getCostPerPerson() *
+                                    participant.getPersonAmount()),
+                          ]),
+                          Row(
+                            children: [
+                              IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      participant.additionalPersons--;
+                                      if (participant.additionalPersons < 0) {
+                                        participant.additionalPersons = 0;
+                                      }
+                                    });
+                                  },
+                                  icon: const Icon(Icons.remove)),
+                              IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      participant.additionalPersons++;
+                                    });
+                                  },
+                                  icon: const Icon(Icons.add)),
+                            ],
+                          ),
                           IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  participant.additionalPersons--;
-                                  if (participant.additionalPersons < 0) {
-                                    participant.additionalPersons = 0;
-                                  }
-                                });
-                              },
-                              icon: const Icon(Icons.remove)),
-                          IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  participant.additionalPersons++;
-                                });
-                              },
-                              icon: const Icon(Icons.add)),
-                        ],
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: () {
-                          setState(() {
-                            widget.foodEntry.participants.remove(participant);
-                          });
-                        },
-                      ),
-                    ]))
+                            icon: const Icon(Icons.delete),
+                            onPressed: () {
+                              setState(() {
+                                widget.foodEntry.participants
+                                    .remove(participant);
+                              });
+                            },
+                          ),
+                        ]))
               ],
             ),
             Text(
-                "Total: ${widget.foodEntry.getPersonCount()} persons @ ${PriceHelper.formatPriceWithUnit(widget.foodEntry.getCostPerPerson())}"),
+                "Total: ${widget.foodEntry.getPersonCount()} persons @ ${PriceHelper.formatPriceWithUnit(widget.foodEntry.getCostPerPerson())} each"),
             FilledButton(
                 onPressed: () async {
                   BackendUser? selectedUser = await selectUserDialog(widget

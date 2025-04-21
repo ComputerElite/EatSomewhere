@@ -4,7 +4,12 @@ import 'package:eat_somewhere/data/helper.dart';
 import 'package:eat_somewhere/main.dart';
 import 'package:eat_somewhere/screens/create_food_entry_screen.dart';
 import 'package:eat_somewhere/service/storage.dart';
+import 'package:eat_somewhere/widgets/chips/additional_persons_chip.dart';
 import 'package:eat_somewhere/widgets/padded_card.dart';
+import 'package:eat_somewhere/widgets/chips/price_chip.dart';
+import 'package:eat_somewhere/widgets/chips/user_additional_person_chip.dart';
+import 'package:eat_somewhere/widgets/chips/user_chip.dart';
+import 'package:eat_somewhere/widgets/chips/user_price_chip.dart';
 import 'package:flutter/material.dart';
 
 class FoodEntryScreen extends StatefulWidget {
@@ -53,10 +58,16 @@ class _FoodEntryWidgetState extends State<FoodEntryWidget> {
   Widget build(BuildContext context) {
     String billSummary = "";
     List<Bill?> bill = widget.foodEntry.bills.where((x) => x!.user?.Id == Storage.getUser()?.userId).toList();
+    Widget billSummaryWidget = const Text("You did not participate in this bill");
+    
     if (bill.isNotEmpty) {
-      billSummary = "You -> ${PriceHelper.formatPriceWithUnit(bill[0]?.amount)} -> ${bill[0]?.recipient?.Username}";
-    } else {
-      billSummary = "You are not in this bill";
+      billSummaryWidget = Row(
+        children: [
+          UserAdditionalPersonChip(additionalPersons: (bill[0]?.persons ?? 1) - 1, user: bill[0]?.user),
+          const Text("->"),
+          UserPriceChip(amount: bill[0]?.amount, user: bill[0]?.recipient),
+        ],
+      );
     }
     return PaddedCard(
       onTap: widget.onTap,
@@ -68,16 +79,20 @@ class _FoodEntryWidgetState extends State<FoodEntryWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
           Text(DateHelper.formatDateTime(widget.foodEntry.date)),
-          Text((widget.foodEntry.payedBy == null ? "No one" : (widget.foodEntry.payedBy!.isSelf() ? "You paid" : "${widget.foodEntry.payedBy!.Username} paid") + " ${PriceHelper.formatPriceWithUnit(widget.foodEntry.cost)}"),),
-          Text(billSummary)
+          Row(children: [
+            UserChip(user: widget.foodEntry.payedBy),
+            const Text("paid"),
+            PriceChip(amount: widget.foodEntry.cost),
+          ],),
+          billSummaryWidget
         ]),
         Row(
           spacing: 10,
           children: [
             IconButton(
               icon: const Icon(Icons.edit),
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => CreateFoodEntryScreen(
@@ -85,6 +100,9 @@ class _FoodEntryWidgetState extends State<FoodEntryWidget> {
                     ),
                   ),
                 );
+                setState(() {
+                  
+                });
               })
           ],
         )

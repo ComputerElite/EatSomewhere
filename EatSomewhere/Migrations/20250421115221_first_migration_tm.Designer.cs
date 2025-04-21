@@ -5,28 +5,33 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace EatSomewhere.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250420182114_bills_2")]
-    partial class bills_2
+    [Migration("20250421115221_first_migration_tm")]
+    partial class first_migration_tm
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.1");
+            modelBuilder
+                .HasAnnotation("ProductVersion", "9.0.1")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("AssemblyUser", b =>
                 {
                     b.Property<string>("AssemblyId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("UsersId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("AssemblyId", "UsersId");
 
@@ -38,10 +43,10 @@ namespace EatSomewhere.Migrations
             modelBuilder.Entity("AssemblyUser1", b =>
                 {
                     b.Property<string>("AdminsId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Assembly1Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("AdminsId", "Assembly1Id");
 
@@ -53,10 +58,10 @@ namespace EatSomewhere.Migrations
             modelBuilder.Entity("AssemblyUser2", b =>
                 {
                     b.Property<string>("Assembly2Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("PendingId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("Assembly2Id", "PendingId");
 
@@ -69,15 +74,15 @@ namespace EatSomewhere.Migrations
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -88,20 +93,24 @@ namespace EatSomewhere.Migrations
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<int>("Amount")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<string>("FoodEntryId")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Persons")
+                        .HasColumnType("integer");
 
                     b.Property<string>("RecipientId")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("UserId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -118,28 +127,28 @@ namespace EatSomewhere.Migrations
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<bool>("Archived")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("AssemblyId")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedById")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<int>("PersonCount")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Recipe")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -154,29 +163,31 @@ namespace EatSomewhere.Migrations
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("AssemblyId")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Comment")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<int>("Cost")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<string>("CreatedById")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("Date")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("FoodId")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("PayedById")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -195,17 +206,17 @@ namespace EatSomewhere.Migrations
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<int>("AdditionalPersons")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<string>("FoodEntryId")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("UserId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -220,30 +231,30 @@ namespace EatSomewhere.Migrations
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<double>("Amount")
-                        .HasColumnType("REAL");
+                        .HasColumnType("double precision");
 
                     b.Property<bool>("Archived")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("AssemblyId")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<int>("Cost")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<string>("CreatedById")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<int>("Unit")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -258,14 +269,14 @@ namespace EatSomewhere.Migrations
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<double>("Amount")
-                        .HasColumnType("REAL");
+                        .HasColumnType("double precision");
 
                     b.Property<string>("IngredientId")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -278,15 +289,15 @@ namespace EatSomewhere.Migrations
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("AssemblyId")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -299,22 +310,19 @@ namespace EatSomewhere.Migrations
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Salt")
                         .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("text");
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -324,23 +332,23 @@ namespace EatSomewhere.Migrations
             modelBuilder.Entity("EatSomewhere.Users.UserSession", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreationDate")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("LastAccess")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Origin")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("ValidUnti")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -350,10 +358,10 @@ namespace EatSomewhere.Migrations
             modelBuilder.Entity("FoodIngredientEntry", b =>
                 {
                     b.Property<string>("FoodsId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("IngredientsId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("FoodsId", "IngredientsId");
 
@@ -365,10 +373,10 @@ namespace EatSomewhere.Migrations
             modelBuilder.Entity("FoodTag", b =>
                 {
                     b.Property<string>("FoodId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("TagsId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("FoodId", "TagsId");
 
@@ -426,7 +434,9 @@ namespace EatSomewhere.Migrations
                 {
                     b.HasOne("EatSomewhere.Data.FoodEntry", "FoodEntry")
                         .WithMany("Bills")
-                        .HasForeignKey("FoodEntryId");
+                        .HasForeignKey("FoodEntryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("EatSomewhere.Users.User", "Recipient")
                         .WithMany("ReceivedBills")
@@ -472,14 +482,18 @@ namespace EatSomewhere.Migrations
 
                     b.HasOne("EatSomewhere.Users.User", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("CreatedById");
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("EatSomewhere.Data.Food", "Food")
-                        .WithMany()
-                        .HasForeignKey("FoodId");
+                        .WithMany("FoodEntries")
+                        .HasForeignKey("FoodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("EatSomewhere.Users.User", "PayedBy")
-                        .WithMany()
+                        .WithMany("PayedFoodEntries")
                         .HasForeignKey("PayedById");
 
                     b.Navigation("Assembly");
@@ -586,6 +600,11 @@ namespace EatSomewhere.Migrations
                     b.Navigation("Ingredients");
                 });
 
+            modelBuilder.Entity("EatSomewhere.Data.Food", b =>
+                {
+                    b.Navigation("FoodEntries");
+                });
+
             modelBuilder.Entity("EatSomewhere.Data.FoodEntry", b =>
                 {
                     b.Navigation("Bills");
@@ -603,6 +622,8 @@ namespace EatSomewhere.Migrations
                     b.Navigation("Bills");
 
                     b.Navigation("Intolerances");
+
+                    b.Navigation("PayedFoodEntries");
 
                     b.Navigation("ReceivedBills");
                 });

@@ -98,13 +98,6 @@ public class UserManager
         {
             return new LoginResponse { Error = "Password incorrect" };
         }
-        
-        if (u.TwoFactorEnabled)
-        {
-            Challenge newRl = new Challenge { Id = Guid.NewGuid().ToString(), UserId = u.Id , Type = ChallengeType.TOTP};
-            challenges.Add(newRl);
-            return new LoginResponse { Success = true, Requires2fa = true, ChallengeId = newRl.Id};
-        }
 
         UserSession session = CreateUserSession(u, SessionValidity);
 
@@ -135,8 +128,7 @@ public class UserManager
         {
             Username = request.Username,
             PasswordHash = CryptographicsHelper.GetHash(request.Password + salt).ToLower(),
-            Salt = salt,
-            TwoFactorEnabled = false
+            Salt = salt
         };
         using (AppDbContext c = new())
         {

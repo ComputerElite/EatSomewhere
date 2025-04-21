@@ -12,4 +12,10 @@ class ServerCom {
       "Authorization": "Bearer ${Storage.getUser()?.session}",
     });
   }
+
+  static Future delete(String url) async {
+    return await http.delete(Uri.parse((Storage.getUser()?.server ?? "") + url), headers: {
+      "Authorization": "Bearer ${Storage.getUser()?.session}",
+    });
+  }
 }

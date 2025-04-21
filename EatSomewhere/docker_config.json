@@ -1,1 +1,1 @@
-{"dbConnectionString":"Data Source=/app/data/database.db","port":8384}
+{"dbConnectionString":"Server=postgres;Port=5432;Database=eatsomewhere;Username=eatsomewhere;Password=eatsomewhere;","port":8384}

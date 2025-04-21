@@ -1,15 +1,4 @@
 services:
-  dotnet_app:
-    build:
-      context: .  # Build from the current directory
-      dockerfile: Dockerfile  # Use the specified Dockerfile
-    container_name: eatsomewhere  # Optional: name the container
-    depends_on:
-      - postgres
-    ports:
-      - "8383:8384"  # Map container port 80 to host port 5000 (adjust as needed)
-    volumes:
-      - ./dotnet_data:/app/data  # Mount a volume to /app/data inside the container
   postgres:
     image: postgres:latest  # Use the latest PostgreSQL image
     container_name: postgres_db  # Optional: name the container
@@ -17,6 +6,8 @@ services:
       POSTGRES_USER: eatsomewhere  # Set the PostgreSQL user
       POSTGRES_PASSWORD: eatsomewhere  # Set the PostgreSQL password
       POSTGRES_DB: eatsomewhere  # Set the PostgreSQL database name
+    ports:
+      - "5432:5432"  # Map container port 5432 to host port 5432 (adjust as needed)
     volumes:
       - ./postgres_data:/var/lib/postgresql/data  # Persist PostgreSQL data
 
