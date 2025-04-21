@@ -7,7 +7,7 @@ services:
     depends_on:
       - postgres
     ports:
-      - "8383:8384"  # Map container port 80 to host port 5000 (adjust as needed)
+      - "8384:8384"  # Map container port 80 to host port 5000 (adjust as needed)
     volumes:
       - ./dotnet_data:/app/data  # Mount a volume to /app/data inside the container
   postgres:

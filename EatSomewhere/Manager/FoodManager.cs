@@ -201,6 +201,7 @@ public class FoodManager
         food.CreatedBy = user;
         food.Assembly = a;
         food.Bills = food.CalculateBills();
+        food.Date = food.Date.ToUniversalTime();
         
         // Check if food already exists and if yes, update it instead of creating it
         FoodEntry? existingEntry = d.FoodEntries.Where(x => x.Id == food.Id).Include(x => x.Bills).FirstOrDefault();
