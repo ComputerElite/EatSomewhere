@@ -2,6 +2,7 @@ import 'package:eat_somewhere/data/food.dart';
 import 'package:eat_somewhere/data/helper.dart';
 import 'package:eat_somewhere/service/storage.dart';
 import 'package:eat_somewhere/widgets/error_dialog.dart';
+import 'package:eat_somewhere/widgets/loading_dialog.dart';
 import 'package:flutter/material.dart';
 
 class CreateIngredientDialog extends StatefulWidget {
@@ -69,7 +70,7 @@ class _CreateIngredientDialogState extends State<CreateIngredientDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () {
+          onPressed: () { 
             Navigator.pop(context);
           },
           child: const Text("Cancel"),
@@ -81,7 +82,9 @@ class _CreateIngredientDialogState extends State<CreateIngredientDialog> {
                 ((double.tryParse(costController.text) ?? 0) * 100).toInt();
             widget.ingredient.amount =
                 double.tryParse(amountController.text) ?? 1;
+            LoadingDialog.show("Saving ingredient...");
             String? error = await Storage.updateIngredient(widget.ingredient);
+            Navigator.pop(context);
             if (error != null) {
               ErrorDialog.show("Error", error);
               return;

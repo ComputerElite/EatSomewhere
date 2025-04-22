@@ -38,4 +38,17 @@ public class BillManager
 
         return total;
     }
+
+    public static List<Bill> GetBills(User user, string assemblyId, int skip, int count)
+    {
+        using var d = new AppDbContext();
+        List<Bill> total = d.Bills
+            .OrderByDescending(x => x.Date)
+            .Where(x => (x.User.Id == user.Id || x.Recipient.Id == user.Id) && x.FoodEntry.Assembly.Id == assemblyId)
+            .Skip(skip)
+            .Take(count)
+            .ToList();
+
+        return total;
+    }
 }

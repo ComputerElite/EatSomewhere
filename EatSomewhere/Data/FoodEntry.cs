@@ -11,10 +11,10 @@ public class FoodEntry
     public DateTime Date { get; set; }
     public string? Comment { get; set; }
     public Food Food { get; set; }
-    public int EstimatedCost => (int)double.Ceiling(Food.EstimatedCost / (double)Food.PersonCount * PersonCount);
-    public int Cost { get; set; }
+    public long EstimatedCost => (long)decimal.Ceiling(Food.EstimatedCost / (decimal)Food.PersonCount * PersonCount);
+    public long Cost { get; set; }
 
-    public int CostPerPerson => (int)double.Ceiling(Cost / (double)PersonCount);
+    public long CostPerPerson => (long)decimal.Ceiling(Cost / (decimal)Math.Max(1, PersonCount));
     
     public int PersonCount => Participants.Sum(x => x.Persons);
     public List<FoodParticipant> Participants { get; set; }
@@ -31,6 +31,7 @@ public class FoodEntry
             Amount = CostPerPerson * x.Persons,
             Persons = x.Persons,
             Recipient = PayedBy,
+            Date = Date
         }).ToList();
     }
 }

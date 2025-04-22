@@ -69,7 +69,8 @@ public class FoodWebserver
     public static void AddFoodRoutes(HttpServer server)
     {
         /// Billing
-        server.AddRoute("GET", "/api/v1/bills/", request =>
+        RegisterPagedListForType("/api/v1/bills/", server, BillManager.GetBills);
+        server.AddRoute("GET", "/api/v1/totals/", request =>
         {
             request.allowAllOrigins = true;
             User? user = UserManagementServer.GetUserBySession(request);

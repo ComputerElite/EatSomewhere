@@ -25,7 +25,7 @@ class _AssemblyCardState extends State<AssemblyCard> {
   void removeUser(BackendUser u) async {
     showDialog(context: context, builder: (context) => AlertDialog.adaptive(
           title: Text("Remove user"),
-          content: Text("Are you sure you want to remove ${u.Username} from the assembly?"),
+          content: Text("Are you sure you want to remove ${u.username} from the assembly?"),
           actions: [
             TextButton(
               onPressed: () {
@@ -75,7 +75,7 @@ class _AssemblyCardState extends State<AssemblyCard> {
                                 child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(e.Username),
+                                Text(e.username),
                                 Row(
                                   children: [
                                     IconButton(
@@ -117,7 +117,7 @@ class _AssemblyCardState extends State<AssemblyCard> {
                           child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text("${e.Username}${isAdmin ? " (Admin)" : ""}"),
+                          Text("${e.username}${isAdmin ? " (Admin)" : ""}"),
                           Row(
                             children: [
                               if (!isAdmin)

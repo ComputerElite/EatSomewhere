@@ -18,6 +18,7 @@ public class Bill
     public User Recipient { get; set; }
     [JsonIgnore]
     public FoodEntry FoodEntry { get; set; }
-    public int Amount { get; set; }
+    public DateTime? Date { get; set; }
+    public long Amount { get; set; }
     public int Persons { get; set; } = 1;
 }

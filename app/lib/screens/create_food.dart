@@ -2,7 +2,9 @@ import 'package:eat_somewhere/data/food.dart';
 import 'package:eat_somewhere/data/helper.dart';
 import 'package:eat_somewhere/screens/select_ingredient.dart';
 import 'package:eat_somewhere/service/storage.dart';
+import 'package:eat_somewhere/widgets/constrained_container.dart';
 import 'package:eat_somewhere/widgets/error_dialog.dart';
+import 'package:eat_somewhere/widgets/loading_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -31,10 +33,10 @@ class _CreateFoodScreenState extends State<CreateFoodScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Create Food'),
+          title: Text('${widget.food.id == null ? "Create" : "Edit"} Food'),
         ),
-        body: ListView(
-          
+        body: ConstrainedContainer(
+            child: ListView(
           children: [
             TextField(
               decoration: InputDecoration(
@@ -80,9 +82,7 @@ class _CreateFoodScreenState extends State<CreateFoodScreen> {
                                     1;
                               },
                               onEditingComplete: () {
-                                setState(() {
-                                  
-                                });
+                                setState(() {});
                               },
                               controller: TextEditingController(
                                 text: ingredient.amount.toString(),
@@ -97,13 +97,13 @@ class _CreateFoodScreenState extends State<CreateFoodScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                            ingredient.ingredient?.unit.name ?? "Unknown",
-                            style: TextStyle(fontSize: 16),
-                          ),
-                          Text(
-                            "~ ${PriceHelper.formatPriceWithUnit(ingredient.getEstimatedCost())}",
-                            style: TextStyle(fontSize: 16),
-                          ),
+                                ingredient.ingredient?.unit.name ?? "Unknown",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              Text(
+                                "~ ${PriceHelper.formatPriceWithUnit(ingredient.getEstimatedCost())}",
+                                style: TextStyle(fontSize: 16),
+                              ),
                             ],
                           ),
                           Column(
@@ -146,7 +146,8 @@ class _CreateFoodScreenState extends State<CreateFoodScreen> {
                   setState(() {});
                 },
                 icon: Icon(Icons.add)),
-                Text("Total cost: ~ ${PriceHelper.formatPriceWithUnit(widget.food.getEstimatedCost())}"),
+            Text(
+                "Total cost: ~ ${PriceHelper.formatPriceWithUnit(widget.food.getEstimatedCost())}"),
             TextField(
               decoration: InputDecoration(
                 labelText: "Recipe",
@@ -160,7 +161,9 @@ class _CreateFoodScreenState extends State<CreateFoodScreen> {
             ),
             FilledButton(
                 onPressed: () async {
+                  LoadingDialog.show("Saving food...");
                   String? error = await Storage.updateFood(widget.food);
+                  Navigator.pop(context);
                   if (error != null) {
                     ErrorDialog.show("Error", error);
                     return;
@@ -169,6 +172,6 @@ class _CreateFoodScreenState extends State<CreateFoodScreen> {
                 },
                 child: Text("Save"))
           ],
-        ));
+        )));
   }
 }

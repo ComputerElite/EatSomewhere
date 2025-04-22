@@ -1,5 +1,6 @@
 
 import 'package:eat_somewhere/main.dart';
+import 'package:eat_somewhere/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
 
 class LoadingDialog extends StatelessWidget {
@@ -15,7 +16,7 @@ class LoadingDialog extends StatelessWidget {
         title: Text(title),
         content: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [CircularProgressIndicator()]),
+            children: [LoadingWidget()]),
         actions: []);
   }
 

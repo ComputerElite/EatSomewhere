@@ -7,9 +7,12 @@ import 'package:eat_somewhere/service/storage.dart';
 import 'package:eat_somewhere/widgets/chips/additional_persons_chip.dart';
 import 'package:eat_somewhere/widgets/chips/chip_combiner.dart';
 import 'package:eat_somewhere/widgets/chips/user_chip.dart';
+import 'package:eat_somewhere/widgets/constrained_container.dart';
 import 'package:eat_somewhere/widgets/error_dialog.dart';
 import 'package:eat_somewhere/widgets/chips/price_chip.dart';
 import 'package:eat_somewhere/widgets/chips/user_additional_person_chip.dart';
+import 'package:eat_somewhere/widgets/heading.dart';
+import 'package:eat_somewhere/widgets/loading_dialog.dart';
 import 'package:flutter/material.dart';
 
 class CreateFoodEntryScreen extends StatefulWidget {
@@ -45,7 +48,7 @@ class _CreateFoodEntryScreenState extends State<CreateFoodEntryScreen> {
                 ...Storage.getUsersForCurrentAssembly()
                     .where((x) => !disallowList.contains(x.Id))
                     .map<Widget>((x) => ListTile(
-                          title: Text(x.Username),
+                          title: Text(x.username),
                           onTap: () {
                             Navigator.pop(context, x);
                           },
@@ -71,41 +74,53 @@ class _CreateFoodEntryScreenState extends State<CreateFoodEntryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Food Entry'),
+        title: Text(
+            "${widget.foodEntry.id == null ? "Create" : "Edit"} Food Entry"),
       ),
-      body: Center(
+      body: ConstrainedContainer(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 5,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Row(
+            Table(
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              columnWidths: {
+                0: IntrinsicColumnWidth(),
+                1: IntrinsicColumnWidth(),
+              },
               children: [
-                Text("Food:"),
-                FilledButton(
-                    onPressed: () async {
-                      Food? selectedFood = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SelectFoodScreen(),
-                        ),
-                      );
-                      if (selectedFood != null) {
-                        widget.foodEntry.food = selectedFood;
-                        setState(() {});
-                      }
-                    },
-                    child: Text(widget.foodEntry.food?.name ?? "Not selected")),
-              ],
-            ),
-            Row(
-              children: [
-                Text("Payed by:"),
-                FilledButton(
-                    onPressed: () async {
-                      widget.foodEntry.payedBy = await selectUserDialog([]);
-                      setState(() {});
-                    },
-                    child: Text(
-                        widget.foodEntry.payedBy?.Username ?? "Not selected"))
+                TableRow(
+                  children: [
+                    Text("Food:"),
+                    FilledButton(
+                        onPressed: () async {
+                          Food? selectedFood = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SelectFoodScreen(),
+                            ),
+                          );
+                          if (selectedFood != null) {
+                            widget.foodEntry.food = selectedFood;
+                            setState(() {});
+                          }
+                        },
+                        child: Text(
+                            widget.foodEntry.food?.name ?? "Not selected")),
+                  ],
+                ),
+                TableRow(
+                  children: [
+                    Text("Payed by:"),
+                    FilledButton(
+                        onPressed: () async {
+                          widget.foodEntry.payedBy = await selectUserDialog([]);
+                          setState(() {});
+                        },
+                        child: Text(widget.foodEntry.payedBy?.username ??
+                            "Not selected"))
+                  ],
+                ),
               ],
             ),
             Text(
@@ -121,7 +136,8 @@ class _CreateFoodEntryScreenState extends State<CreateFoodEntryScreen> {
                 });
               },
             ),
-            Text("Participants"),
+            Heading(text: "Participants"),
+            Divider(),
             Table(
               children: [
                 ...widget.foodEntry.participants
@@ -171,20 +187,22 @@ class _CreateFoodEntryScreenState extends State<CreateFoodEntryScreen> {
             ),
             Text(
                 "Total: ${widget.foodEntry.getPersonCount()} persons @ ${PriceHelper.formatPriceWithUnit(widget.foodEntry.getCostPerPerson())} each"),
-            FilledButton(
-                onPressed: () async {
-                  BackendUser? selectedUser = await selectUserDialog(widget
-                      .foodEntry.participants
-                      .map((x) => x.user?.Id)
-                      .toList());
-                  if (selectedUser != null) {
-                    setState(() {
-                      widget.foodEntry.participants
-                          .add(FoodParticipant.fromUser(selectedUser!));
-                    });
-                  }
-                },
-                child: const Text("Add Participant")),
+            if (widget.foodEntry.participants.length <
+                Storage.getUsersForCurrentAssembly().length)
+              FilledButton(
+                  onPressed: () async {
+                    BackendUser? selectedUser = await selectUserDialog(widget
+                        .foodEntry.participants
+                        .map((x) => x.user?.Id)
+                        .toList());
+                    if (selectedUser != null) {
+                      setState(() {
+                        widget.foodEntry.participants
+                            .add(FoodParticipant.fromUser(selectedUser!));
+                      });
+                    }
+                  },
+                  child: const Text("Add Participant")),
             TextField(
               decoration: InputDecoration(
                 labelText: "Comment",
@@ -198,8 +216,10 @@ class _CreateFoodEntryScreenState extends State<CreateFoodEntryScreen> {
             ),
             FilledButton(
                 onPressed: () async {
+                  LoadingDialog.show("Saving food entry...");
                   String? error =
                       await Storage.updateFoodEntry(widget.foodEntry);
+                  Navigator.pop(context);
                   if (error != null) {
                     ErrorDialog.show("Error", error);
                     return;

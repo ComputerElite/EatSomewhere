@@ -13,8 +13,8 @@ public class Ingredient
     /// <summary>
     /// Cents
     /// </summary>
-    public int Cost { get; set; }
-    public double Amount { get; set; }
+    public long Cost { get; set; }
+    public decimal Amount { get; set; }
     public Unit Unit { get; set; }
     public Assembly Assembly { get; set; }
     public bool Archived { get; set; } = false;

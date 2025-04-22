@@ -124,11 +124,13 @@ public class FoodManager
             }
             existingIngredient.Archived = true;
         }
+        
+        if(food.PersonCount < 1) food.PersonCount = 1;
 
         foreach (IngredientEntry ingredientEntry in food.Ingredients)
         {
             ingredientEntry.Id = null;
-            ingredientEntry.Ingredient = d.Ingredients.FirstOrDefault(x => x != null && x.Id == ingredientEntry.Ingredient.Id);
+            ingredientEntry.Ingredient = d.Ingredients.FirstOrDefault(x => x.Id == ingredientEntry.Ingredient.Id);
         }
 
         food.Id = null;
@@ -200,8 +202,8 @@ public class FoodManager
         food.PayedBy = foundPayedBy;
         food.CreatedBy = user;
         food.Assembly = a;
-        food.Bills = food.CalculateBills();
         food.Date = food.Date.ToUniversalTime();
+        food.Bills = food.CalculateBills();
         
         // Check if food already exists and if yes, update it instead of creating it
         FoodEntry? existingEntry = d.FoodEntries.Where(x => x.Id == food.Id).Include(x => x.Bills).FirstOrDefault();

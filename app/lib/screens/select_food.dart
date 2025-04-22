@@ -4,6 +4,7 @@ import 'package:eat_somewhere/screens/create_ingredient_dialog.dart';
 import 'package:eat_somewhere/screens/food_widget.dart';
 import 'package:eat_somewhere/screens/ingredient_widget.dart';
 import 'package:eat_somewhere/service/storage.dart';
+import 'package:eat_somewhere/widgets/searchable_list.dart';
 import 'package:flutter/material.dart';
 
 class SelectFoodScreen extends StatefulWidget {
@@ -16,25 +17,27 @@ class SelectFoodScreen extends StatefulWidget {
 class _SelectFoodScreenState extends State<SelectFoodScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Select Food'),
-      ),
-      body: ListView(children: [
-        ...Storage.getFoodsForCurrentAssembly()
-            .map<Widget>((x) => FoodWidget(
-                  food: x,
-                  onTap: () => Navigator.pop(context, x),
-                ))
-            .toList(),
-        FilledButton(onPressed: () async {
-          // Shop pop up of ingredient
-          Food? newFood = await showDialog(context: context, builder: (builder) => CreateFoodScreen(food: Food(),));
-          if(newFood != null) {
+    return SearchableListScreen<Food>(
+        title: "Select Food",
+        items: Storage.getFoodsForCurrentAssembly(),
+        onRefresh: () async {
+          await Storage.reloadFoods();
+          setState(() {});
+        },
+        mappingFunction: (x) => FoodWidget(
+              food: x,
+              onTap: () => Navigator.pop(context, x),
+            ),
+        stringFunction: (x) => x.name ?? "Unknown",
+        newAction: () async {
+          Food? newFood = await showDialog(
+              context: context,
+              builder: (builder) => CreateFoodScreen(
+                    food: Food(),
+                  ));
+          if (newFood != null) {
             Navigator.pop(context, newFood);
           }
-        }, child: Icon(Icons.add))
-      ]),
-    );
+        });
   }
 }

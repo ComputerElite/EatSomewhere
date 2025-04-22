@@ -15,9 +15,15 @@ class AdditionalPersonsChip extends CombinableChip {
   @override
   Widget build(BuildContext context) {
     return Chip(
-      label: Text(
-        "+$additionalPersons",
-        style: const TextStyle(color: Colors.white),
+      label: Row(
+        spacing: 6,
+        children: [
+          Text(
+            "+$additionalPersons",
+            style: TextStyle(color: UserColors.getContrastColor(user)),
+          ),
+          Icon(Icons.group, color: UserColors.getContrastColor(user),)
+        ],
       ),
       shape: this.shape,
       backgroundColor: UserColors.getColor(user),

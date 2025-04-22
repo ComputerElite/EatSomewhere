@@ -16,6 +16,10 @@ class UserColors {
   static Color getColor(BackendUser? user) {
     return userColors[(user?.Id.hashCode ?? 1) % userColors.length];
   }
+  
+  static getContrastColor(BackendUser? user) {
+    return getColor(user).computeLuminance() > 0.5 ? Colors.black : Colors.white;
+  }
 }
 
 class UserChip extends CombinableChip {
@@ -34,8 +38,8 @@ class UserChip extends CombinableChip {
               UserColors.getColor(user),
               shape: shape,
           label: Text(
-            user?.Username ?? "Unspecified user",
-            style: TextStyle(color: Colors.white),
+            user?.username ?? "Unspecified user",
+            style: TextStyle(color: UserColors.getContrastColor(user)),
           )),
     );
   }

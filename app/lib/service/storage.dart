@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:eat_somewhere/backend_data/Backend_user.dart';
 import 'package:eat_somewhere/backend_data/assembly.dart';
+import 'package:eat_somewhere/data/bill.dart';
 import 'package:eat_somewhere/data/food.dart';
 import 'package:eat_somewhere/data/foodentry.dart';
 import 'package:eat_somewhere/service/server_loader.dart';
@@ -16,9 +17,10 @@ class Storage {
   static Storage instance = Storage();
   Settings settings = Settings();
   List<Assembly> ownAssemblies = [];
-  List<Ingredient> ingredients = [];
-  List<Food> foods = [];
-  List<FoodEntry> foodEntries = [];
+  Map<String, List<Ingredient>> ingredients = {};
+  Map<String, List<Food>> foods = {};
+  Map<String, List<FoodEntry>> foodEntries = {};
+  Map<String, List<Bill>> bills = {};
 
   static Function() onDataReload = () {};
 
@@ -26,6 +28,7 @@ class Storage {
     instance.user = user;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('user', jsonEncode(user));
+    initialStart();
   }
 
   static Future saveOwnAssemblies(List<Assembly> assemblies) async {
@@ -104,44 +107,46 @@ class Storage {
   }
 
   static Future reloadIngredients() async {
-    instance.ingredients = await ServerLoader.LoadIngredients();
+    instance.ingredients[getSettings().chosenAssembly] = await ServerLoader.LoadIngredients();
     onDataReload();
   }
 
   static Future reloadFoods() async {
-    instance.foods = await ServerLoader.LoadFoods();
+    instance.foods[getSettings().chosenAssembly] = await ServerLoader.LoadFoods();
     onDataReload();
   }
   static Future reloadFoodEntries() async {
-    instance.foodEntries = await ServerLoader.LoadFoodEntries(0, 20);
+    instance.foodEntries[getSettings().chosenAssembly] = await ServerLoader.LoadFoodEntries(0, 20);
+    onDataReload();
+  }
+
+  static Future reloadBills() async {
+    instance.bills[getSettings().chosenAssembly] = await ServerLoader.LoadBills(0, 20);
     onDataReload();
   }
 
   static Future loadMoreFoodEntries() async {
-    for(FoodEntry e in await ServerLoader.LoadFoodEntries(instance.foodEntries.where((x) => x.assemblyId == getSettings().chosenAssembly).length, 20)) {
+    for(FoodEntry e in await ServerLoader.LoadFoodEntries((instance.foodEntries[getSettings().chosenAssembly] ?? []).where((x) => x.assemblyId == getSettings().chosenAssembly).length, 20)) {
       // replace the old food entry with the new one but
-      instance.foodEntries.removeWhere((x) => x.id == e.id);
-      instance.foodEntries.add(e);
+      instance.foodEntries[getSettings().chosenAssembly]?.removeWhere((x) => x.id == e.id);
+      instance.foodEntries[getSettings().chosenAssembly]?.add(e);
     }
-    instance.foodEntries.sort((x,y) => y.date.compareTo(x.date));
+    instance.foodEntries[getSettings().chosenAssembly]?.sort((x,y) => y.date.compareTo(x.date));
     onDataReload();
   }
 
-  static getIngredientsForCurrentAssembly() {
-    return instance.ingredients
-        .where((element) => element.assemblyId == getSettings().chosenAssembly)
-        .toList();
+  static List<Ingredient>? getIngredientsForCurrentAssembly() {
+    return (instance.ingredients[getSettings().chosenAssembly] ?? null);
   }
-  static getFoodsForCurrentAssembly() {
-    return instance.foods
-        .where((element) => element.assemblyId == getSettings().chosenAssembly)
-        .toList();
+  static List<Food>? getFoodsForCurrentAssembly() {
+    return instance.foods[getSettings().chosenAssembly];
   }
 
-  static getFoodEntriesForCurrentAssembly() {
-    return instance.foodEntries
-        .where((element) => element.assemblyId == getSettings().chosenAssembly)
-        .toList();
+  static List<FoodEntry>? getFoodEntriesForCurrentAssembly() {
+    return instance.foodEntries[getSettings().chosenAssembly];
+  }
+  static List<Bill>? getBillsForCurrentAssembly() {
+    return instance.bills[getSettings().chosenAssembly];
   }
 
   static Future<String?> updateIngredient(Ingredient ingredient) async {
@@ -154,16 +159,9 @@ class Storage {
       return serverResponse.error;
     }
     ingredient.id = serverResponse.value!.data!["Id"];
-    Storage.instance.ingredients.removeWhere((x) => x.id == ingredient.id);
-    Storage.instance.ingredients.add(Ingredient.fromJson(serverResponse.value!.data!));
-    Storage.saveIngredients();
+    Storage.instance.ingredients[getSettings().chosenAssembly]?.removeWhere((x) => x.id == ingredient.id);
+    Storage.instance.ingredients[getSettings().chosenAssembly]?.add(Ingredient.fromJson(serverResponse.value!.data!));
     return null;
-  }
-
-  static void saveIngredients() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('ingredients',
-        jsonEncode(instance.ingredients.map((x) => x.toJson()).toList()));
   }
 
   static Future<String?> updateFood(Food food) async {
@@ -177,9 +175,8 @@ class Storage {
     }
     // The old food was archived, therefore we need to remove it
     food.id = serverResponse.value!.data!["Id"];
-    Storage.instance.foods.removeWhere((x) => x.id == food.id);
-    Storage.instance.foods.add(Food.fromJson(serverResponse.value!.data!));
-    Storage.saveFoods();
+    Storage.instance.foods[getSettings().chosenAssembly]?.removeWhere((x) => x.id == food.id);
+    Storage.instance.foods[getSettings().chosenAssembly]?.add(Food.fromJson(serverResponse.value!.data!));
     return null;
   }
 
@@ -195,16 +192,9 @@ class Storage {
       return serverResponse.error;
     }
     // The old food was archived, therefore we need to remove it
-    Storage.instance.foodEntries.removeWhere((x) => x.id == foodEntry.id);
-    Storage.instance.foodEntries.add(FoodEntry.fromJson(serverResponse.value!.data!));
-    Storage.saveFoods();
+    Storage.instance.foodEntries[getSettings().chosenAssembly]?.removeWhere((x) => x.id == foodEntry.id);
+    Storage.instance.foodEntries[getSettings().chosenAssembly]?.add(FoodEntry.fromJson(serverResponse.value!.data!));
     return null;
-  }
-
-  static void saveFoods() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString(
-        'foods', jsonEncode(instance.foods.map((x) => x.toJson()).toList()));
   }
 
   static List<BackendUser> getUsersForCurrentAssembly() {
@@ -221,8 +211,7 @@ class Storage {
       return serverResponse.error;
     }
     // The old food was archived, therefore we need to remove it
-    Storage.instance.foods.removeWhere((x) => x.id == food.id);
-    Storage.saveFoods();
+    Storage.instance.foods[getSettings().chosenAssembly]?.removeWhere((x) => x.id == food.id);
     return null;
   }
 }

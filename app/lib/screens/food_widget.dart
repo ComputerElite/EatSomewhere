@@ -60,8 +60,8 @@ class _FoodWidgetState extends State<FoodWidget> {
               }),
             IconButton(
               icon: const Icon(Icons.edit),
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => CreateFoodScreen(
@@ -69,6 +69,8 @@ class _FoodWidgetState extends State<FoodWidget> {
                     ),
                   ),
                 );
+                widget.foodRemoved?.call();
+                setState(() {});
               }),
             IconButton(
               icon: const Icon(Icons.add),

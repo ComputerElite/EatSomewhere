@@ -143,8 +143,8 @@ class ServerLoader {
     }
   }
 
-  static Future<List<Bill>> LoadBills() async {
-    var response = await ServerCom.get("/api/v1/bills/${Storage.getSettings().chosenAssembly}");
+  static Future<List<Bill>> LoadTotals() async {
+    var response = await ServerCom.get("/api/v1/totals/${Storage.getSettings().chosenAssembly}");
     print(response.body);
     if (response.statusCode == 200) {
       return (jsonDecode(response.body) as List<dynamic>).map((e) => Bill.fromJson(e)).toList();
@@ -160,6 +160,15 @@ class ServerLoader {
     } else {
       return ErrorContainer(null, "Error: ${response.statusCode} ${response.body}");
     }
+  }
+
+  static Future<List<Bill>> LoadBills(int skip, int count) async {
+    var response = await ServerCom.get("/api/v1/bills/${Storage.getSettings().chosenAssembly}?skip=$skip&count=$count");
+    print(response.body);
+    if (response.statusCode == 200) {
+      return (jsonDecode(response.body) as List<dynamic>).map((e) => Bill.fromJson(e)).toList();
+    }
+    return [];
   }
 }
 

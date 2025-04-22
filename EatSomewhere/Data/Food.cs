@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using EatSomewhere.Users;
@@ -16,7 +17,7 @@ public class Food
     public int PersonCount { get; set; } = 1;
     
     [NotMapped]
-    public int EstimatedCost
+    public long EstimatedCost
     {
         get
         {

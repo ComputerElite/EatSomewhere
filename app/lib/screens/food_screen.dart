@@ -3,6 +3,8 @@ import 'package:eat_somewhere/main.dart';
 import 'package:eat_somewhere/screens/create_food.dart';
 import 'package:eat_somewhere/screens/food_widget.dart';
 import 'package:eat_somewhere/service/storage.dart';
+import 'package:eat_somewhere/widgets/constrained_container.dart';
+import 'package:eat_somewhere/widgets/searchable_list.dart';
 import 'package:flutter/material.dart';
 
 class FoodScreen extends StatefulWidget {
@@ -35,16 +37,21 @@ class _FoodScreenState extends State<FoodScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text('Food Screen'),
-        ),
-        body: ListView(
-            children: Storage.getFoodsForCurrentAssembly()
-                .map<Widget>((x) => FoodWidget(
+    return ConstrainedContainer(
+        child: Scaffold(
+            appBar: AppBar(
+              title: const Text('Food Screen'),
+            ),
+            body: SearchableList<Food>(
+                onRefresh: () async {
+                  await Storage.reloadFoods();
+                  setState(() {});
+                },
+                items: Storage.getFoodsForCurrentAssembly(),
+                mappingFunction: (x) => FoodWidget(
                       food: x,
                       foodRemoved: () => setState(() {}),
-                    ))
-                .toList()));
+                    ),
+                stringFunction: (x) => x.name ?? "Unknown")));
   }
 }
