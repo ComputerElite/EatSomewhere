@@ -14,8 +14,17 @@ class ArrowPriceChip extends CombinableChip {
     return InkWell(
       onTap: onTap,
       child: Chip(
-        label: Text(
-          "→ ${PriceHelper.formatPriceWithUnit(amount)} →"
+        label: SizedBox(
+          width: 90,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("→",),
+              Text(
+                PriceHelper.formatPriceWithUnit(amount)),
+              Text("→",),
+            ],
+          ),
         ),
         shape: shape,
         padding: const EdgeInsets.all(0),

@@ -10,7 +10,7 @@ public class UserManagementServer
 {
     public static User? GetUserBySession(ServerRequest request)
     {
-        string? session = null;
+        string? session;
         string? authorizationHeader = request.context.Request.Headers.Get("Authorization");
         if(authorizationHeader != null)
         {

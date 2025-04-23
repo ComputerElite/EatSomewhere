@@ -3,6 +3,7 @@ import 'package:eat_somewhere/data/food.dart';
 import 'package:eat_somewhere/data/foodentry.dart';
 import 'package:eat_somewhere/data/helper.dart';
 import 'package:eat_somewhere/screens/select_food.dart';
+import 'package:eat_somewhere/screens/shopping_list_screen.dart';
 import 'package:eat_somewhere/service/storage.dart';
 import 'package:eat_somewhere/widgets/chips/additional_persons_chip.dart';
 import 'package:eat_somewhere/widgets/chips/chip_combiner.dart';
@@ -203,6 +204,16 @@ class _CreateFoodEntryScreenState extends State<CreateFoodEntryScreen> {
                     }
                   },
                   child: const Text("Add Participant")),
+            FilledButton(onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ShoppingListScreen(
+                    foodEntry: widget.foodEntry
+                  ),
+                ),
+              );
+            }, child: Text("Show shopping list")),
             TextField(
               decoration: InputDecoration(
                 labelText: "Comment",

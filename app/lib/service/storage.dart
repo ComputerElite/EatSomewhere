@@ -117,6 +117,7 @@ class Storage {
   }
   static Future reloadFoodEntries() async {
     instance.foodEntries[getSettings().chosenAssembly] = await ServerLoader.LoadFoodEntries(0, 20);
+    instance.foodEntries[getSettings().chosenAssembly]!.sort((x,y) => y.date.compareTo(x.date));
     onDataReload();
   }
 

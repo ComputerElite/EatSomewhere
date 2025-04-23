@@ -72,6 +72,20 @@ class FoodEntry {
     return (cost / getPersonCount()).ceil();
   }
 
+  List<IngredientEntry> getShoppingList() {
+    List<IngredientEntry> shoppingList = [];
+    int persons = getPersonCount();
+    if(food == null) return [];
+    for (IngredientEntry ingredient in food!.ingredients) {
+      print("Ingredient: ${ingredient.ingredient}");
+      if(ingredient.ingredient == null) continue;
+      IngredientEntry shoppingItem = IngredientEntry.fromIngredient(ingredient.ingredient!);
+      shoppingItem.amount = ingredient.amount / (food?.personCount ?? 1) * persons;
+      shoppingList.add(shoppingItem);
+    }
+    return shoppingList;
+  }
+
   FoodEntry.fromFood(Food this.food);
 }
 
