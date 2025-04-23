@@ -23,6 +23,7 @@ class _SelectIngredientScreenState extends State<SelectIngredientScreen> {
           setState(() {});
         },
         mappingFunction: (x) => IngredientWidget(
+          ingredientRemoved: () => setState(() {}),
               ingredient: x,
               onTap: () {
                 Navigator.pop(context, x);

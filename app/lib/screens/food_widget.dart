@@ -14,11 +14,13 @@ class FoodWidget extends StatefulWidget {
   Food food;
   Function()? onTap;
   Function()? foodRemoved;
+  bool allowNew = true;
 
   FoodWidget({
     Key? key,
     required this.food,
     this.foodRemoved,
+    required this.allowNew,
     this.onTap,
   }) : super(key: key);
 
@@ -74,7 +76,7 @@ class _FoodWidgetState extends State<FoodWidget> {
               }),
             IconButton(
               icon: const Icon(Icons.add),
-              onPressed: () {
+              onPressed: widget.allowNew ? () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -83,7 +85,7 @@ class _FoodWidgetState extends State<FoodWidget> {
                     ),
                   ),
                 );
-              }),
+              } : widget.onTap),
           ],
         )
       ],

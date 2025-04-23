@@ -21,12 +21,12 @@ class _CreateIngredientDialogState extends State<CreateIngredientDialog> {
 
   @override
   void initState() {
-    super.initState();
     if (widget.ingredient.id != null) {
       nameController.text = widget.ingredient.name ?? "";
       costController.text = PriceHelper.formatPriceWithoutUnit(widget.ingredient.cost);
       amountController.text = widget.ingredient.amount.toString();
-    }
+    } 
+    super.initState();
   }
 
   @override

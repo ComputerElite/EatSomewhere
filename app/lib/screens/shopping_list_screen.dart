@@ -30,8 +30,9 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
           ),
           // Adjust the table to use the minimum width it needs
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(child: Container(child: Table(
+              Expanded(child: Table(
                 defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                 children: [
                   ...widget.foodEntry
@@ -44,7 +45,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                             PriceChip(amount: item.getEstimatedCost()),
                           ])),
                 ],
-              )))
+              ))
             ],
           )
         ],

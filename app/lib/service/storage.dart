@@ -215,4 +215,15 @@ class Storage {
     Storage.instance.foods[getSettings().chosenAssembly]?.removeWhere((x) => x.id == food.id);
     return null;
   }
+
+  static Future<String?> deleteIngredient(Ingredient ingredient) async {
+    ErrorContainer<bool?> serverResponse =
+        await ServerLoader.deleteIngredient(ingredient);
+    if (serverResponse.error != null) {
+      return serverResponse.error;
+    }
+    // The old food was archived, therefore we need to remove it
+    Storage.instance.ingredients[getSettings().chosenAssembly]?.removeWhere((x) => x.id == ingredient.id);
+    return null;
+  }
 }

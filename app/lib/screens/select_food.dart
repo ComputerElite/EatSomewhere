@@ -27,6 +27,7 @@ class _SelectFoodScreenState extends State<SelectFoodScreen> {
         mappingFunction: (x) => FoodWidget(
               food: x,
               onTap: () => Navigator.pop(context, x),
+              allowNew: false,
             ),
         stringFunction: (x) => x.name ?? "Unknown",
         newAction: () async {

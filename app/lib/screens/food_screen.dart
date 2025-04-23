@@ -49,6 +49,7 @@ class _FoodScreenState extends State<FoodScreen> {
                 },
                 items: Storage.getFoodsForCurrentAssembly(),
                 mappingFunction: (x) => FoodWidget(
+                      allowNew: true,
                       food: x,
                       foodRemoved: () => setState(() {}),
                     ),
