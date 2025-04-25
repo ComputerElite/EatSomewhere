@@ -17,12 +17,12 @@ class ChipCombiner extends StatelessWidget {
       );
     }
     chips.first.shape = RoundedRectangleBorder(
-        borderRadius: BorderRadiusGeometry.horizontal(left: Radius.circular(8)));
+        borderRadius: BorderRadiusGeometry.only(topLeft: Radius.circular(8), bottomLeft: Radius.circular(8)));
     chips.last.shape = RoundedRectangleBorder(
-        borderRadius: BorderRadiusGeometry.horizontal(right: Radius.circular(8)));
+        borderRadius: BorderRadiusGeometry.only(topRight: Radius.circular(8), bottomRight: Radius.circular(8)));
     chips.skip(1).take(chips.length - 2).forEach((chip) {
       chip.shape = RoundedRectangleBorder(
-          borderRadius: BorderRadiusGeometry.horizontal(left: Radius.circular(0), right: Radius.circular(0)));
+          borderRadius: BorderRadiusGeometry.all(Radius.circular(0)));
     });
     return Row(
       mainAxisSize: MainAxisSize.min,
