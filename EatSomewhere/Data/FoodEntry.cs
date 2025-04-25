@@ -25,7 +25,7 @@ public class FoodEntry
 
     public List<Bill> CalculateBills()
     {
-        return Participants.Select(x => new Bill
+        List<Bill> bills = Participants.Select(x => new Bill
         {
             User = x.User ?? null,
             Amount = CostPerPerson * x.Persons,
@@ -33,5 +33,12 @@ public class FoodEntry
             Recipient = PayedBy,
             Date = Date
         }).ToList();
+        int i = 0;
+        while (bills.Sum(x => x.Amount) > Cost)
+        {
+            bills[i % bills.Count].Amount -= 1;
+            i++;
+        }
+        return bills;
     }
 }
