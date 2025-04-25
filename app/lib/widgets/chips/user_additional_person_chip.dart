@@ -25,11 +25,17 @@ class UserAdditionalPersonChip extends StatelessWidget {
       chips: [
         UserChip(
             user: user,
-            onTap: onTap,),
+            onTap: onTap,
+            shape: RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadiusGeometry.horizontal(left: Radius.circular(8)))),
         AdditionalPersonsChip(
             additionalPersons: additionalPersons,
             onTap: onTap,
-            user: user,)
+            user: user,
+            shape: RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadiusGeometry.horizontal(right: Radius.circular(8))))
       ],
     );
   }
