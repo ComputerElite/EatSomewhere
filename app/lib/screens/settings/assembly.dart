@@ -175,6 +175,7 @@ class _AssemblyCardState extends State<AssemblyCard> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(widget.assembly.name, style: t.textTheme.headlineSmall),
             Text(widget.assembly.description, style: t.textTheme.bodySmall),

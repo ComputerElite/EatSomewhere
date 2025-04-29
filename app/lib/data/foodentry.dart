@@ -15,6 +15,7 @@ class FoodEntry {
   List<Bill?> bills = [];
   BackendUser? payedBy;
   String? assemblyId;
+  bool inProgress = false;
 
   int getPersonCount() {
     return participants.fold(0, (sum, participant) => sum + participant.getPersonAmount());
@@ -32,6 +33,7 @@ class FoodEntry {
     date = DateTime.parse(json["Date"]);
     comment = json["Comment"];
     food = Food.fromJson(json["Food"]);
+    inProgress = json["InProgress"] ?? false;
     cost = json["Cost"];
     costPerPerson = json["CostPerPerson"];
     personCount = json["PersonCount"];
@@ -44,17 +46,19 @@ class FoodEntry {
     participants = (json["Participants"] as List<dynamic>)
         .map((e) => FoodParticipant.fromJson(e))
         .toList();
-    payedBy = BackendUser.fromJson(json["PayedBy"]);
+    if(json["PayedBy"] != null) payedBy = BackendUser.fromJson(json["PayedBy"]);
   }
 
   FoodEntry();
 
   toJson() {
+    inProgress = cost <= 0;
     return {
       "Assembly": {
         "Id": assemblyId,
       },
       "Id": id,
+      "InProgress": inProgress,
       "Date": date.toIso8601String(),
       "Comment": comment,
       "Food": food?.toJson(),

@@ -9,13 +9,32 @@ namespace EatSomewhere.Manager;
 
 public class FoodManager
 {
+    public static Assembly? GetAssemblyWithUsers(string assemblyId, AppDbContext d, bool includeAdmins)
+    {
+        Assembly? assembly = d.Assemblies
+            .FirstOrDefault(x => x.Id == assemblyId);
+        if (assembly == null)
+        {
+            return null;
+        }
+        d.Entry(assembly).Collection(x => x.Users).Load();
+        if (includeAdmins)
+        {
+            d.Entry(assembly).Collection(x => x.Admins).Load();
+        }
+        return assembly;
+    }
+    public static List<Assembly> GetAssembliesOfUser(User user, AppDbContext d)
+    {
+        List<Assembly> assembly = d.Assemblies
+            .Where(x => x.Users.Contains(user)).ToList();
+        return assembly;
+    }
     public static List<FoodEntry> GetFoodEntries(User user, string assemblyId, int skip, int count)
     {
         using var d = new AppDbContext();
         d.Attach(user);
-        Assembly? assembly = d.Assemblies.Where(x => x.Id == assemblyId)
-            .Include(x => x.Users)
-            .FirstOrDefault();
+        Assembly? assembly = GetAssemblyWithUsers(assemblyId, d, false);
         if (assembly == null)
         {
             return new List<FoodEntry>();
@@ -24,13 +43,15 @@ public class FoodManager
         {
             return new List<FoodEntry>();
         }
-        return d.FoodEntries.Where(x => x.Assembly.Id == assemblyId)
-            .Include(x => x.Participants)
-            .Include(x => x.Bills)
+
+        List<FoodEntry> foodEntries = d.FoodEntries.Where(x => x.Assembly.Id == assemblyId)
             .OrderByDescending(x => x.Date)
+            .Include(x => x.Participants)
+            .Include(x => x.Bills.Where(y => y.User == user))
             .Skip(skip)
             .Take(count)
             .ToList();
+        return foodEntries;
     }
     public static List<Ingredient> GetIngredients(User user)
     {
@@ -47,11 +68,11 @@ public class FoodManager
     {
         using var d = new AppDbContext();
         List<Food> foods = new List<Food>();
-        foreach (Assembly assembly in d.Assemblies.Where(x => x.Users.Contains(user)).Include(x => x.Foods))
+        foreach (Assembly assembly in d.Assemblies.Where(x => x.Users.Contains(user))
+                     .Include(x => x.Foods.Where(x => !x.Archived)).ToList())
         {
-            foreach (Food food in assembly.Foods.Where(x => !x.Archived))
+            foreach (Food food in assembly.Foods)
             {
-                Logger.Log(food.Name);
                 foods.Add(food);
             }
         }
@@ -191,12 +212,12 @@ public class FoodManager
         }
         food.Food = foundFood;
         User? foundPayedBy = a.Users.FirstOrDefault(x => x.Id == food.PayedBy?.Id);
-        if (foundPayedBy == null)
+        if(foundPayedBy == null && food.Cost > 0)
         {
             return new ApiResponse<FoodEntry>
             {
                 Success = false,
-                Error = "PayedBy user not found"
+                Error = "PayedBy user not found. They're required when the cost is greater than 0."
             };
         }
         food.PayedBy = foundPayedBy;

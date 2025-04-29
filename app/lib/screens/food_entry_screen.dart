@@ -93,10 +93,13 @@ class _FoodEntryWidgetState extends State<FoodEntryWidget> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(
-                widget.foodEntry.food?.name ?? "Unknown",
-                style: theme.textTheme.headlineSmall,
-              ),
+              Row(children: [
+                Text(
+                  widget.foodEntry.food?.name ?? "Unknown",
+                  style: theme.textTheme.headlineSmall,
+                ),
+                if(widget.foodEntry.inProgress) Chip(label: Text("In progress"))
+              ],),
               Text(
                 DateHelper.formatDateTime(widget.foodEntry.date),
                 style: theme.textTheme.labelMedium,

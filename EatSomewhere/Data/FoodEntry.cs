@@ -18,6 +18,11 @@ public class FoodEntry
     
     public int PersonCount => Participants.Sum(x => x.Persons);
     public List<FoodParticipant> Participants { get; set; }
+    [NotMapped]
+    private bool InProgress
+    {
+        get => PayedBy == null;
+    }
     public User? PayedBy { get; set; }
     public Assembly Assembly { get; set; }
     public User CreatedBy { get; set; }
@@ -25,6 +30,7 @@ public class FoodEntry
 
     public List<Bill> CalculateBills()
     {
+        if (Cost <= 0) return new List<Bill>();
         List<Bill> bills = Participants.Select(x => new Bill
         {
             User = x.User ?? null,

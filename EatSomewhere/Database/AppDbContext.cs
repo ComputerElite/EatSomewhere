@@ -18,7 +18,7 @@ public class AppDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         Config.LoadConfig();
-        optionsBuilder.UseNpgsql(Config.Instance?.dbConnectionString == null ? new Config().dbConnectionString : Config.Instance.dbConnectionString);
+        optionsBuilder.UseNpgsql(Config.Instance?.dbConnectionString == null ? new Config().dbConnectionString : Config.Instance.dbConnectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
     }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
